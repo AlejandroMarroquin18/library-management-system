@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ libro.titulo }}</title>
+</head>
+<body>
+
+    <a href="{% url 'home' %}">← Volver al catálogo</a>
+
+    <h1>{{ libro.titulo }}</h1>
+    <p><strong>Autor:</strong> {{ libro.autor.nombre }} {{ libro.autor.apellido }}</p>
+    <p><strong>Editorial:</strong> {{ libro.editorial.nombre|default:"Sin editorial" }}</p>
+    <p><strong>Categoría:</strong> {{ libro.categoria.nombre }}</p>
+    <p><strong>ISBN:</strong> {{ libro.isbn }}</p>
+    
+    <h3>Sinopsis</h3>
+    <p>{{ libro.descripcion|default:"Sin descripción disponible." }}</p>
+
+    <hr>
+
+    <p><strong>Precio Venta:</strong> ${{ libro.precio_compra }}</p>
+    <p><strong>Precio Alquiler:</strong> ${{ libro.precio_alquiler }}</p>
+    <p><strong>Disponibles en inventario:</strong> {{ libro.stock }}</p>
+
+</body>
+</html>
