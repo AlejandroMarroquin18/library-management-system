@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumen de Compra #{{ compra.id }}</title>
+</head>
+<body>
+
+    <a href="{% url 'home' %}">← Volver al inicio</a>
+    
+    <h1>🎉 ¡Gracias por tu compra!</h1>
+    <p><strong>Número de Orden:</strong> #{{ compra.id }}</p>
+    <p><strong>Fecha:</strong> {{ compra.fecha|date:"d/m/Y H:i" }}</p>
+    <p><strong>Estado:</strong> {{ compra.get_estado_display }}</p>
+
+    <h3>Detalle de Artículos</h3>
+    <ul>
+        {% for detalle in compra.detalles.all %}
+            <li>
+                <strong>{{ detalle.cantidad }}x</strong> {{ detalle.libro.titulo }} 
+                — ${{ detalle.precio_unitario }} c/u 
+                (Subtotal: ${{ detalle.subtotal }})
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Total Cobrado: ${{ compra.total }}</h2>
+
+</body>
+</html>

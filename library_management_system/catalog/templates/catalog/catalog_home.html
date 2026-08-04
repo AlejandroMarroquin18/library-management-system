@@ -1,51 +1,100 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Libros - Librería</title>
+    <title>Catálogo de Libros</title>
 </head>
+
 <body>
 
-    <!-- Barra de navegación / Estado de autenticación -->
     <header>
         <h2>📚 Mi Librería</h2>
         {% if user.is_authenticated %}
-            <p>
-                Bienvenido, <strong>{{ user.username }}</strong> 
-                (Rol: <strong>{{ user.get_role_display }}</strong>)
-            </p>
-            
-            {% if user.is_admin %}
-                <p>🔹 <em>Acceso de Administrador activo</em></p>
-            {% endif %}
+        <p>Usuario: <strong>{{ user.username }}</strong> ({{ user.get_role_display }})</p>
 
-            <!-- Formulario seguro de Logout (POST) -->
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Cerrar Sesión</button>
-            </form>
+        <!-- Botón exclusivo para Administradores -->
+        {% if user.is_admin %}
+        <p>⚙️ <a href="{% url 'admin:index' %}" target="_blank">Panel Django Admin</a></p>
+        {% endif %}
+
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Cerrar Sesión</button>
+        </form>
         {% else %}
-            <a href="{% url 'login' %}">Iniciar Sesión</a> | 
-            <a href="{% url 'register' %}">Registrarse</a>
+        <a href="{% url 'login' %}">Iniciar Sesión</a> | <a href="{% url 'register' %}">Registrarse</a>
         {% endif %}
     </header>
 
     <hr>
 
-    <main>
-        <h3>Catálogo de Libros</h3>
+    <!-- FASE 5: BARRA DE BÚSQUEDA -->
+    <section>
+        <form method="get" action="{% url 'home' %}">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Buscar por título, autor o ISBN...">
+            {% if categoria_seleccionada %}
+            <!-- Mantiene el filtro de categoría activo al buscar -->
+            <input type="hidden" name="categoria" value="{{ categoria_seleccionada }}">
+            {% endif %}
+            <button type="submit">Buscar</button>
+            {% if search_query %}
+            <a href="{% url 'home' %}">Limpiar búsqueda</a>
+            {% endif %}
+        </form>
+    </section>
 
-        {% if books %}
-            <ul>
-                {% for book in books %}
-                    <li>{{ book.title }} - {{ book.author }}</li>
-                {% endfor %}
-            </ul>
+    <br>
+
+    <!-- FASE 6: FILTRO POR CATEGORÍA -->
+    <nav>
+        <strong>Categorías:</strong>
+        <a href="{% url 'home' %}{% if search_query %}?q={{ search_query }}{% endif %}">Todas</a>
+        {% for cat in categorias %}
+        | <a href="?categoria={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}">
+            {% if cat.id == categoria_seleccionada %}
+            <strong><u>{{ cat.nombre }}</u></strong>
+            {% else %}
+            {{ cat.nombre }}
+            {% endif %}
+        </a>
+        {% endfor %}
+    </nav>
+
+    <hr>
+
+    <!-- LISTADO RESULTANTE -->
+    <main>
+        {% if search_query %}
+        <p>Resultados para la búsqueda: <em>"{{ search_query }}"</em></p>
+        {% endif %}
+
+        {% if libros %}
+        <ul>
+            {% for libro in libros %}
+            {% if user.is_authenticated %}
+            <form action="{% url 'add_to_cart' libro.id %}" method="post" style="margin-top: 5px;">
+                {% csrf_token %}
+                <input type="number" name="cantidad" value="1" min="1" max="{{ libro.stock }}" style="width: 50px;">
+                <button type="submit">🛒 Agregar al Carrito</button>
+            </form>
+            {% else %}
+            <p><em><a href="{% url 'login' %}">Inicia sesión</a> para comprar.</em></p>
+            {% endif %}
+            <li>
+                <h4><a href="{% url 'libro_detail' libro.id %}">{{ libro.titulo }}</a></h4>
+                <p><strong>Autor:</strong> {{ libro.autor }} | <strong>Categoría:</strong> {{ libro.categoria.nombre }}
+                </p>
+                <p><strong>Precio Venta:</strong> ${{ libro.precio_compra }} | <strong>Stock:</strong> {{ libro.stock }}
+                </p>
+            </li>
+            {% endfor %}
+        </ul>
         {% else %}
-            <p>No hay libros disponibles en el catálogo en este momento.</p>
+        <p>No se encontraron libros que coincidan con los criterios de búsqueda o filtro.</p>
         {% endif %}
     </main>
 
 </body>
+
 </html>
