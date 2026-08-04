@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Préstamos</title>
+</head>
+<body>
+
+    <a href="{% url 'home' %}">← Volver al inicio</a>
+    <h1>⚙️ Gestión de Préstamos (Administrador)</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p><strong>{{ message }}</strong></p>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Filtros por Estado -->
+    <nav>
+        <strong>Filtrar por estado:</strong>
+        <a href="{% url 'admin_loans_list' %}">Todos</a> |
+        <a href="?status=ACTIVE">Activos</a> |
+        <a href="?status=RETURNED">Devueltos</a> |
+        <a href="?status=OVERDUE">Vencidos</a>
+    </nav>
+
+    <br>
+
+    {% if loans %}
+        <table border="1" cellpadding="8" style="border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Libro</th>
+                    <th>Fecha Préstamo</th>
+                    <th>Fecha Límite</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                    <tr>
+                        <td>#{{ loan.id }}</td>
+                        <td>{{ loan.user.username }}</td>
+                        <td>{{ loan.book.titulo }}</td>
+                        <td>{{ loan.loan_date|date:"d/m/Y" }}</td>
+                        <td>{{ loan.due_date|date:"d/m/Y" }}</td>
+                        <td>
+                            <strong>{{ loan.get_status_display }}</strong>
+                        </td>
+                        <td>
+                            {% if loan.status != 'RETURNED' %}
+                                <form action="{% url 'mark_as_returned' loan.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit">Marcar Devuelto</button>
+                                </form>
+                            {% else %}
+                                <span>Devuelto el {{ loan.returned_date|date:"d/m/Y" }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay préstamos para mostrar con el filtro seleccionado.</p>
+    {% endif %}
+
+</body>
+</html>

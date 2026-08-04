@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Préstamos</title>
+</head>
+<body>
+
+    <a href="{% url 'home' %}">← Volver al Catálogo</a>
+    <h1>📖 Mis Préstamos</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p><strong>{{ message }}</strong></p>
+        {% endfor %}
+    {% endif %}
+
+    {% if loans %}
+        <table border="1" cellpadding="8" style="border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Fecha Préstamo</th>
+                    <th>Fecha Límite</th>
+                    <th>Fecha Devolución</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                    <tr>
+                        <td>{{ loan.book.titulo }}</td>
+                        <td>{{ loan.loan_date|date:"d/m/Y" }}</td>
+                        <td>{{ loan.due_date|date:"d/m/Y" }}</td>
+                        <td>{{ loan.returned_date|date:"d/m/Y"|default:"—" }}</td>
+                        <td>
+                            {% if loan.status == 'ACTIVE' %}
+                                <span style="color: blue;">Activo</span>
+                            {% elif loan.status == 'RETURNED' %}
+                                <span style="color: green;">Devuelto</span>
+                            {% elif loan.status == 'OVERDUE' %}
+                                <span style="color: red; font-weight: bold;">Vencido</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No tienes préstamos registrados.</p>
+    {% endif %}
+
+</body>
+</html>

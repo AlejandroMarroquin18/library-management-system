@@ -1,11 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ libro.titulo }}</title>
 </head>
+
 <body>
+
+    <!-- En libro_detail.html -->
+    <hr>
+    {% if user.is_authenticated %}
+    {% if libro.stock > 0 and libro.disponible %}
+    <form action="{% url 'request_loan' libro.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit"
+            style="background-color: #17a2b8; color: white; padding: 10px 15px; border: none; cursor: pointer;">
+            📘 Solicitar Préstamo (14 días)
+        </button>
+    </form>
+    {% else %}
+    <p><strong>Aviso:</strong> Este libro no está disponible para préstamo en este momento.</p>
+    {% endif %}
+    {% else %}
+    <p><a href="{% url 'login' %}">Inicia sesión</a> para solicitar este libro en préstamo.</p>
+    {% endif %}
 
     <a href="{% url 'home' %}">← Volver al catálogo</a>
 
@@ -14,7 +34,7 @@
     <p><strong>Editorial:</strong> {{ libro.editorial.nombre|default:"Sin editorial" }}</p>
     <p><strong>Categoría:</strong> {{ libro.categoria.nombre }}</p>
     <p><strong>ISBN:</strong> {{ libro.isbn }}</p>
-    
+
     <h3>Sinopsis</h3>
     <p>{{ libro.descripcion|default:"Sin descripción disponible." }}</p>
 
@@ -25,4 +45,5 @@
     <p><strong>Disponibles en inventario:</strong> {{ libro.stock }}</p>
 
 </body>
+
 </html>
