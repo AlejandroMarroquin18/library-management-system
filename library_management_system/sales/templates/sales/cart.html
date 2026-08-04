@@ -1,63 +1,158 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Mi Carrito de Compras</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <a href="{% url 'home' %}">← Volver al Catálogo</a>
-    <h1>🛒 Mi Carrito de Compras</h1>
+{% block title %}Mi carrito de compras | Mi Librería{% endblock %}
 
-    <!-- Mensajes de alerta/éxito -->
-    {% if messages %}
-        {% for message in messages %}
-            <p><strong>{{ message }}</strong></p>
-        {% endfor %}
-    {% endif %}
+{% block extra_css %}
+<style>
+    .cart-card {
+        border: 1px solid var(--brand-border);
+        border-radius: 0.75rem;
+        background-color: #ffffff;
+    }
 
-    {% if cart.items.all %}
-        <table border="1" cellpadding="8" style="border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th>Libro</th>
-                    <th>Precio Unitario</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart.items.all %}
-                    <tr>
-                        <td>{{ item.libro.titulo }}</td>
-                        <td>${{ item.libro.precio_compra }}</td>
-                        <td>{{ item.cantidad }}</td>
-                        <td>${{ item.subtotal }}</td>
-                        <td>
-                            <form action="{% url 'remove_from_cart' item.id %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    .table-custom th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        background-color: #f8fafc;
+        border-bottom: 1px solid var(--brand-border);
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
 
-        <h3>Total a Pagar: ${{ cart.total_price }}</h3>
+    .table-custom td {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        color: #334155;
+    }
 
-        <!-- Botón de Confirmación de Compra -->
-        <form action="{% url 'checkout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit" style="font-size: 16px; padding: 10px 20px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                Confirmar y Realizar Compra
-            </button>
-        </form>
+    .book-thumb-placeholder {
+        width: 42px;
+        height: 56px;
+        background-color: #e2e8f0;
+        border-radius: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+    }
 
-    {% else %}
-        <p>Tu carrito está vacío actualmente.</p>
-    {% endif %}
+    .summary-card {
+        border: 1px solid var(--brand-border);
+        border-radius: 0.75rem;
+        background-color: #f8fafc;
+    }
+</style>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <div>
+        <h1 class="h4 fw-bold text-slate-800 mb-1">Mi carrito de compras</h1>
+        <p class="text-muted small mb-0">Revisa los libros seleccionados antes de finalizar tu compra</p>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" href="{% url 'home' %}">
+        <i class="bi bi-arrow-left me-1"></i>Volver al catálogo
+    </a>
+</div>
+
+{% if cart.items.all %}
+<div class="row g-4">
+    <!-- Lista de Items en el Carrito -->
+    <div class="col-lg-8">
+        <div class="card cart-card shadow-sm overflow-hidden">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Libro</th>
+                                <th>Precio Un.</th>
+                                <th class="text-center">Cant.</th>
+                                <th>Subtotal</th>
+                                <th class="pe-4 text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart.items.all %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if item.libro.portada %}
+                                        <img src="{{ item.libro.portada.url }}" alt="{{ item.libro.titulo }}" class="rounded shadow-sm" style="width: 42px; height: 56px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="book-thumb-placeholder">
+                                            <i class="bi bi-book fs-5"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-0 fw-semibold text-dark fs-6">{{ item.libro.titulo }}</h6>
+                                            <small class="text-muted d-block">{{ item.libro.autor|default:"" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="small fw-medium">${{ item.libro.precio_compra }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-slate-100 text-dark border px-2.5 py-1.5 rounded-pill font-monospace">
+                                        {{ item.cantidad }}
+                                    </span>
+                                </td>
+                                <td class="fw-semibold text-dark">${{ item.subtotal }}</td>
+                                <td class="pe-4 text-end">
+                                    <form action="{% url 'remove_from_cart' item.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1" title="Eliminar del carrito">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen y Confirmación de Compra -->
+    <div class="col-lg-4">
+        <div class="card summary-card shadow-sm p-3">
+            <h5 class="fw-bold text-slate-800 mb-3 border-bottom pb-2 h6">Resumen de la orden</h5>
+            
+            <div class="d-flex justify-content-between align-items-center mb-2 text-muted small">
+                <span>Items totales:</span>
+                <span class="fw-medium text-dark">{{ cart.items.all|length }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 pt-2 border-top">
+                <span class="fw-bold text-slate-800">Total a pagar:</span>
+                <span class="fs-4 fw-bold text-success">${{ cart.total_price }}</span>
+            </div>
+
+            <form action="{% url 'checkout' %}" method="post" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success w-100 rounded-pill py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-shield-lock-fill me-1"></i>Confirmar y realizar compra
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card cart-card border-0 shadow-sm p-5 text-center">
+    <div class="text-muted mb-3">
+        <i class="bi bi-cart-x fs-1"></i>
+    </div>
+    <h3 class="h6 fw-semibold text-secondary mb-1">Tu carrito está vacío actualmente</h3>
+    <p class="text-muted small mb-3">Aún no has añadido ningún libro a tu orden de compra.</p>
+    <div>
+        <a href="{% url 'home' %}" class="btn btn-accent btn-sm rounded-pill px-4">
+            Explorar catálogo
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

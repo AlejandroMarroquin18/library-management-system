@@ -1,100 +1,218 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Catálogo de Libros</title>
-</head>
+{% block title %}Catálogo de libros | Mi Librería{% endblock %}
 
-<body>
+{% block extra_css %}
+<style>
+    .catalog-card {
+        border: 1px solid var(--brand-border);
+        border-radius: 0.75rem;
+        background-color: #ffffff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
 
-    <header>
-        <h2>📚 Mi Librería</h2>
-        {% if user.is_authenticated %}
-        <p>Usuario: <strong>{{ user.username }}</strong> ({{ user.get_role_display }})</p>
+    .catalog-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+    }
 
-        <!-- Botón exclusivo para Administradores -->
-        {% if user.is_admin %}
-        <p>⚙️ <a href="{% url 'admin:index' %}" target="_blank">Panel Django Admin</a></p>
-        {% endif %}
+    .book-cover-container {
+        height: 220px;
+        background-color: #f1f5f9;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
 
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Cerrar Sesión</button>
-        </form>
-        {% else %}
-        <a href="{% url 'login' %}">Iniciar Sesión</a> | <a href="{% url 'register' %}">Registrarse</a>
-        {% endif %}
-    </header>
+    .book-cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
-    <hr>
+    .book-cover-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+    }
 
-    <!-- FASE 5: BARRA DE BÚSQUEDA -->
-    <section>
-        <form method="get" action="{% url 'home' %}">
-            <input type="text" name="q" value="{{ search_query }}" placeholder="Buscar por título, autor o ISBN...">
-            {% if categoria_seleccionada %}
-            <!-- Mantiene el filtro de categoría activo al buscar -->
-            <input type="hidden" name="categoria" value="{{ categoria_seleccionada }}">
-            {% endif %}
-            <button type="submit">Buscar</button>
-            {% if search_query %}
-            <a href="{% url 'home' %}">Limpiar búsqueda</a>
-            {% endif %}
-        </form>
-    </section>
+    .badge-category {
+        background-color: var(--brand-blue-soft);
+        color: var(--brand-blue-accent);
+        border: 1px solid #bae6fd;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
 
-    <br>
+    .search-card {
+        border: 1px solid var(--brand-border);
+        border-radius: 0.75rem;
+    }
 
-    <!-- FASE 6: FILTRO POR CATEGORÍA -->
-    <nav>
-        <strong>Categorías:</strong>
-        <a href="{% url 'home' %}{% if search_query %}?q={{ search_query }}{% endif %}">Todas</a>
-        {% for cat in categorias %}
-        | <a href="?categoria={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}">
-            {% if cat.id == categoria_seleccionada %}
-            <strong><u>{{ cat.nombre }}</u></strong>
-            {% else %}
-            {{ cat.nombre }}
-            {% endif %}
-        </a>
-        {% endfor %}
-    </nav>
+    .cat-btn {
+        border-radius: 2rem;
+        padding: 0.25rem 0.85rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
 
-    <hr>
+    .price-text {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+</style>
+{% endblock %}
 
-    <!-- LISTADO RESULTANTE -->
-    <main>
-        {% if search_query %}
-        <p>Resultados para la búsqueda: <em>"{{ search_query }}"</em></p>
-        {% endif %}
+{% block content %}
+<div class="row g-4">
+    <!-- Filtros y Búsqueda -->
+    <div class="col-12">
+        <div class="card search-card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h4 fw-bold text-slate-800 mb-3">Catálogo de libros</h1>
+                
+                <form method="get" action="{% url 'home' %}" class="row g-2 align-items-center">
+                    <div class="col-12 col-md">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="q" value="{{ search_query }}" class="form-control border-start-0 ps-0"
+                                placeholder="Buscar por título, autor o ISBN...">
+                        </div>
+                    </div>
+                    {% if categoria_seleccionada %}
+                    <input type="hidden" name="categoria" value="{{ categoria_seleccionada }}">
+                    {% endif %}
+                    <div class="col-12 col-md-auto d-flex gap-2">
+                        <button type="submit" class="btn btn-accent px-4">Buscar</button>
+                        {% if search_query %}
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">Limpiar</a>
+                        {% endif %}
+                    </div>
+                </form>
 
-        {% if libros %}
-        <ul>
-            {% for libro in libros %}
-            {% if user.is_authenticated %}
-            <form action="{% url 'add_to_cart' libro.id %}" method="post" style="margin-top: 5px;">
-                {% csrf_token %}
-                <input type="number" name="cantidad" value="1" min="1" max="{{ libro.stock }}" style="width: 50px;">
-                <button type="submit">🛒 Agregar al Carrito</button>
-            </form>
-            {% else %}
-            <p><em><a href="{% url 'login' %}">Inicia sesión</a> para comprar.</em></p>
-            {% endif %}
-            <li>
-                <h4><a href="{% url 'libro_detail' libro.id %}">{{ libro.titulo }}</a></h4>
-                <p><strong>Autor:</strong> {{ libro.autor }} | <strong>Categoría:</strong> {{ libro.categoria.nombre }}
+                <hr class="my-3 opacity-10">
+
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="small text-muted fw-semibold me-1"><i class="bi bi-funnel me-1"></i>Categorías:</span>
+                    <a class="btn cat-btn {% if not categoria_seleccionada %}btn-accent{% else %}btn-soft{% endif %}"
+                        href="{% url 'home' %}{% if search_query %}?q={{ search_query }}{% endif %}">Todas</a>
+                    {% for cat in categorias %}
+                    <a class="btn cat-btn {% if cat.id|add:0 == categoria_seleccionada|add:0 %}btn-accent{% else %}btn-soft{% endif %}"
+                        href="?categoria={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}">
+                        {{ cat.nombre }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if search_query %}
+    <div class="col-12">
+        <div class="alert alert-light border shadow-sm mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-info-circle text-info"></i>
+            <span>Resultados para la búsqueda: <strong>"{{ search_query }}"</strong></span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Listado de Libros -->
+    {% if libros %}
+    {% for libro in libros %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card catalog-card h-100 shadow-sm">
+            
+            <!-- Imagen / Portada -->
+            <div class="book-cover-container">
+                {% if libro.imagen %}
+                <img src="{{ libro.imagen.url }}" alt="{{ libro.titulo }}" class="book-cover-img">
+                {% else %}
+                <div class="book-cover-placeholder">
+                    <i class="bi bi-journal-album fs-1 opacity-50"></i>
+                </div>
+                {% endif %}
+                <span class="position-absolute top-0 end-0 m-3 badge badge-category rounded-pill shadow-sm">
+                    {{ libro.categoria.nombre }}
+                </span>
+            </div>
+
+            <div class="card-body p-4 d-flex flex-column">
+                <h2 class="h6 fw-bold card-title mb-1">
+                    <a class="text-decoration-none text-dark hover-blue" href="{% url 'libro_detail' libro.id %}">
+                        {{ libro.titulo }}
+                    </a>
+                </h2>
+                
+                <p class="text-muted small mb-3">
+                    <i class="bi bi-person me-1"></i>{{ libro.autor }}
                 </p>
-                <p><strong>Precio Venta:</strong> ${{ libro.precio_compra }} | <strong>Stock:</strong> {{ libro.stock }}
-                </p>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p>No se encontraron libros que coincidan con los criterios de búsqueda o filtro.</p>
-        {% endif %}
-    </main>
 
-</body>
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-auto">
+                    <div>
+                        <span class="d-block text-muted small" style="font-size: 0.75rem;">Precio</span>
+                        <span class="price-text">${{ libro.precio_compra }}</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="d-block text-muted small" style="font-size: 0.75rem;">Stock</span>
+                        {% if libro.stock > 0 %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                            {{ libro.stock }} disp.
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">
+                            Agotado
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
 
-</html>
+                {% if user.is_authenticated %}
+                    {% if libro.stock > 0 %}
+                    <form action="{% url 'add_to_cart' libro.id %}" method="post" class="mt-2">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="number" name="cantidad" value="1" min="1" max="{{ libro.stock }}"
+                                class="form-control form-control-sm text-center" style="max-width: 70px;" aria-label="Cantidad">
+                            <button type="submit" class="btn btn-accent btn-sm flex-grow-1">
+                                <i class="bi bi-cart-plus me-1"></i> Agregar
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-light btn-sm w-100 mt-2 text-muted" disabled>No disponible</button>
+                    {% endif %}
+                {% else %}
+                <div class="mt-2 text-center">
+                    <a href="{% url 'login' %}" class="btn btn-soft btn-sm w-100">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Inicia sesión para comprar
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm p-5 text-center">
+            <div class="text-muted mb-3">
+                <i class="bi bi-search fs-1"></i>
+            </div>
+            <h3 class="h5 fw-semibold text-secondary">No se encontraron libros</h3>
+            <p class="text-muted small mb-0">Intenta modificar los filtros o el término de búsqueda.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
