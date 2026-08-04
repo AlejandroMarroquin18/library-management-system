@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Libros - Librería</title>
+</head>
+<body>
+
+    <!-- Barra de navegación / Estado de autenticación -->
+    <header>
+        <h2>📚 Mi Librería</h2>
+        {% if user.is_authenticated %}
+            <p>
+                Bienvenido, <strong>{{ user.username }}</strong> 
+                (Rol: <strong>{{ user.get_role_display }}</strong>)
+            </p>
+            
+            {% if user.is_admin %}
+                <p>🔹 <em>Acceso de Administrador activo</em></p>
+            {% endif %}
+
+            <!-- Formulario seguro de Logout (POST) -->
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Cerrar Sesión</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Iniciar Sesión</a> | 
+            <a href="{% url 'register' %}">Registrarse</a>
+        {% endif %}
+    </header>
+
+    <hr>
+
+    <main>
+        <h3>Catálogo de Libros</h3>
+
+        {% if books %}
+            <ul>
+                {% for book in books %}
+                    <li>{{ book.title }} - {{ book.author }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay libros disponibles en el catálogo en este momento.</p>
+        {% endif %}
+    </main>
+
+</body>
+</html>

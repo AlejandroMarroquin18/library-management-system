@@ -136,3 +136,8 @@ STATIC_URL = 'static/'
 
 #Usar mi modelo de usuario personalizado
 AUTH_USER_MODEL = 'users.User'
+
+# A dónde redirigir tras iniciar sesión, cerrar sesión o intentar acceder a una vista protegida
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'

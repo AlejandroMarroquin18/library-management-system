@@ -4,7 +4,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib import messages
 from .forms import CustomUserCreationForm
 
-# 1. VISTA DE REGISTRO
+# VISTA DE REGISTRO
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('login')
@@ -23,12 +23,12 @@ def register_view(request):
     return render(request, 'users/register.html', {'form': form})
 
 
-# 2. VISTA DE LOGIN (Usamos la genérica de Django personalizada)
+# VISTA DE LOGIN (Usamos la genérica de Django personalizada)
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
     redirect_authenticated_user = True  # Redirige si ya inició sesión
 
 
-# 3. VISTA DE LOGOUT (Usamos la genérica de Django)
+# VISTA DE LOGOUT (Usamos la genérica de Django)
 class CustomLogoutView(LogoutView):
     next_page = 'login'  # Redirige al login tras cerrar sesión
