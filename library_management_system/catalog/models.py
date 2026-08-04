@@ -1,9 +1,10 @@
 from django.db import models
+from core.models import TimeStampedModel
 
 # Create your models here.
 
 # Clase Autor. Guarda información sobre los autores de los libros.
-class Autor(models.Model):
+class Autor(TimeStampedModel):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     biografia = models.TextField(blank=True, null=True, verbose_name="Biografía")
@@ -19,7 +20,7 @@ class Autor(models.Model):
         return f"{self.nombre} {self.apellido}"
 
 # Clase Editorial. Guarda información sobre las editoriales de los libros.
-class Editorial(models.Model):
+class Editorial(TimeStampedModel):
     nombre = models.CharField(max_length=150)
     pais = models.CharField(max_length=100, blank=True, null=True, verbose_name="País")
     sitio_web = models.URLField(blank=True, null=True, verbose_name="Sitio web")
@@ -33,7 +34,7 @@ class Editorial(models.Model):
         return self.nombre
 
 # Clase Categoria. Guarda información sobre las categorías de los libros.
-class Categoria(models.Model):
+class Categoria(TimeStampedModel):
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
 
@@ -46,7 +47,7 @@ class Categoria(models.Model):
         return self.nombre
 
 # Clase Libro. Guarda información sobre los libros disponibles en la librería.
-class Libro(models.Model):
+class Libro(TimeStampedModel):
     titulo = models.CharField(max_length=200, verbose_name="Título")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
     isbn = models.CharField(max_length=13, unique=True, verbose_name="ISBN")

@@ -3,9 +3,10 @@ from django.conf import settings
 from catalog.models import Libro
 from datetime import timedelta
 from django.utils import timezone
+from core.models import TimeStampedModel
 
 
-class Loan(models.Model):
+class Loan(TimeStampedModel):
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', 'Activo'
         RETURNED = 'RETURNED', 'Devuelto'
