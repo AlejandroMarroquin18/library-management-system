@@ -29,12 +29,12 @@ DB_PORT = os.getenv('DB_PORT')
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3w6tgx*1abnzdoqxv_6ux0ixy4ww^r6w+!p&0b4&ori%on9*d3'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.onrender.com', 'localhost',]
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'core',
     'catalog',
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -141,7 +143,8 @@ STORAGES = {
 }
 
 # Ruta pública/URL con la que el navegador accederá a las imágenes
-AWS_S3_CUSTOM_DOMAIN = f"zfhocfumkppbtjyndadd.supabase.co/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}"
+SUPABASE_PROJECT_ID = os.getenv('SUPABASE_PROJECT_ID')
+AWS_S3_CUSTOM_DOMAIN = f"{SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}"
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 # Ruta en el sistema de archivos donde Django guardará físicamente las imágenes
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -161,7 +164,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Habilita compresión y caché de estáticos
+STORAGES["staticfiles"] = {
+    "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+}
 
 #Usar mi modelo de usuario personalizado
 AUTH_USER_MODEL = 'users.User'
