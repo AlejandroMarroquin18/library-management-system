@@ -1,7 +1,6 @@
 from datetime import timedelta
-
 from django.db import transaction
-from django.views.generic import DetailView, TemplateView, View
+from django.views.generic import DetailView, TemplateView, ListView, CreateView, UpdateView, DeleteView, View
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from users.mixins import AdminRequiredMixin
@@ -10,7 +9,6 @@ from sales.models import Compra
 from loans.models import Loan
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.shortcuts import redirect, get_object_or_404
 
 User = get_user_model()
@@ -161,7 +159,7 @@ class EditorialDeleteView(AdminRequiredMixin, DeleteView):
         messages.success(self.request, "Editorial eliminada con éxito.")
         return super().delete(request, *args, **kwargs)
 
-class LibroListView(ListView):
+class LibroListView(AdminRequiredMixin, ListView):
     model = Libro
     template_name = 'dashboard/libros/libro_list.html'
     context_object_name = 'libros'
@@ -188,7 +186,7 @@ class LibroDeleteView(AdminRequiredMixin, DeleteView):
 
 # --- MÓDULO DE PRÉSTAMOS ---
 
-class LoanListView(ListView):
+class LoanListView(AdminRequiredMixin, ListView):
     model = Loan
     template_name = 'dashboard/prestamos/prestamo_list.html'
     context_object_name = 'prestamos'
@@ -205,7 +203,7 @@ class LoanListView(ListView):
         return queryset
 
 
-class LoanCreateView(CreateView):
+class LoanCreateView(AdminRequiredMixin, CreateView):
     model = Loan
     fields = ['user', 'book', 'due_date']
     template_name = 'dashboard/prestamos/prestamo_form.html'
@@ -235,7 +233,7 @@ class LoanCreateView(CreateView):
             return response
 
 
-class LoanReturnView(View):
+class LoanReturnView(AdminRequiredMixin, View):
     """Vista para procesar la devolución de un libro de forma rápida."""
     
     def post(self, request, pk):
@@ -261,7 +259,7 @@ class LoanReturnView(View):
 
 # --- MÓDULO DE COMPRAS / VENTAS ---
 
-class CompraListView(ListView):
+class CompraListView(AdminRequiredMixin, ListView):
     model = Compra
     template_name = 'dashboard/compras/compra_list.html'
     context_object_name = 'compras'
@@ -269,7 +267,7 @@ class CompraListView(ListView):
     ordering = ['-fecha']
 
 
-class CompraDetailView(DetailView):
+class CompraDetailView(AdminRequiredMixin, DetailView):
     model = Compra
     template_name = 'dashboard/compras/compra_detail.html'
     context_object_name = 'compra'
@@ -281,7 +279,7 @@ class CompraDetailView(DetailView):
         return context
 
 
-class CompraStatusUpdateView(View):
+class CompraStatusUpdateView(AdminRequiredMixin, View):
     """Permite cambiar rápidamente el estado de una compra desde el dashboard."""
 
     def post(self, request, pk):
@@ -299,7 +297,7 @@ class CompraStatusUpdateView(View):
 
 # --- MÓDULO DE Usuarips ---
 
-class UserListView(ListView):
+class UserListView(AdminRequiredMixin, ListView):
     model = User
     template_name = 'dashboard/usuarios/usuario_list.html'
     context_object_name = 'usuarios'
@@ -307,7 +305,7 @@ class UserListView(ListView):
     ordering = ['-created_at']
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(AdminRequiredMixin, UpdateView):
     model = User
     fields = ['username', 'first_name', 'last_name', 'email', 'role', 'is_active']
     template_name = 'dashboard/usuarios/usuario_form.html'
@@ -318,7 +316,7 @@ class UserUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class UserToggleActiveView(View):
+class UserToggleActiveView(AdminRequiredMixin, View):
     """Permite activar o desactivar un usuario rápidamente."""
     
     def post(self, request, pk):

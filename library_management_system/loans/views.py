@@ -9,18 +9,15 @@ from .models import Loan
 # VISTAS DEL USUARIO (CUSTOMER)
 @login_required
 def request_loan_view(request, book_id):
-    """Acción para que un usuario autenticado solicite el préstamo de un libro."""
     if request.method == 'POST':
         try:
             loan = LoanService.create_loan(request.user, book_id)
-            messages.success(
-                request, 
-                f"¡Préstamo de '{loan.book.titulo}' registrado con éxito! Fecha límite de devolución: {loan.due_date}."
-            )
+            return render(request, 'loans/loan_success.html', {'loan': loan})
         except ValidationError as e:
             messages.error(request, e.message)
+            return redirect('libro_detail', pk=book_id)
             
-    return redirect('my_loans')
+    return redirect('home')
 
 
 @login_required

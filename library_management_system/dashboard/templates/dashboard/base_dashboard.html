@@ -52,7 +52,8 @@
             text-transform: uppercase;
         }
 
-        .sidebar-link {
+        .sidebar-link,
+        .sidebar-btn-logout {
             display: flex;
             align-items: center;
             gap: 0.6rem;
@@ -62,12 +63,21 @@
             border-radius: 0.65rem;
             font-weight: 500;
             transition: all 0.2s ease;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
         }
 
         .sidebar-link:hover,
         .sidebar-link.active {
             color: #ffffff;
             background-color: rgba(148, 163, 184, 0.18);
+        }
+
+        .sidebar-btn-logout:hover {
+            color: #fca5a5;
+            background-color: rgba(239, 68, 68, 0.15);
         }
 
         .dashboard-main {
@@ -204,44 +214,56 @@
 
 <body>
     <div class="dashboard-shell d-lg-flex">
-        <aside class="dashboard-sidebar p-3 p-lg-4">
-            <a class="brand d-flex flex-column mb-4" href="{% url 'dashboard:home' %}">
-                <span class="d-flex align-items-center gap-2 fs-5"><i class="bi bi-speedometer2"></i> Dashboard</span>
-                <small>Mi Libreria</small>
-            </a>
-
-            <nav class="d-flex flex-column gap-1">
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'dashboard:home' %}">
-                    <i class="bi bi-grid-fill"></i>Inicio
-                </a>
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'libro_list' or request.resolver_match.url_name == 'libro_create' or request.resolver_match.url_name == 'libro_update' or request.resolver_match.url_name == 'libro_delete' %}active{% endif %}" href="{% url 'dashboard:libro_list' %}">
-                    <i class="bi bi-book-fill"></i>Libros
-                </a>
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'autor_list' or request.resolver_match.url_name == 'autor_create' or request.resolver_match.url_name == 'autor_update' or request.resolver_match.url_name == 'autor_delete' %}active{% endif %}" href="{% url 'dashboard:autor_list' %}">
-                    <i class="bi bi-pen-fill"></i>Autores
-                </a>
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'categoria_list' or request.resolver_match.url_name == 'categoria_create' or request.resolver_match.url_name == 'categoria_update' or request.resolver_match.url_name == 'categoria_delete' %}active{% endif %}" href="{% url 'dashboard:categoria_list' %}">
-                    <i class="bi bi-tags-fill"></i>Categorias
-                </a>
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'editorial_list' or request.resolver_match.url_name == 'editorial_create' or request.resolver_match.url_name == 'editorial_update' or request.resolver_match.url_name == 'editorial_delete' %}active{% endif %}" href="{% url 'dashboard:editorial_list' %}">
-                    <i class="bi bi-buildings-fill"></i>Editoriales
-                </a>
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'compra_list' or request.resolver_match.url_name == 'compra_detail' %}active{% endif %}" href="{% url 'dashboard:compra_list' %}">
-                    <i class="bi bi-cash-stack"></i>Compras
-                </a>
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'prestamo_list' or request.resolver_match.url_name == 'prestamo_create' %}active{% endif %}" href="{% url 'dashboard:prestamo_list' %}">
-                    <i class="bi bi-journal-check"></i>Prestamos
-                </a>
-                <a class="sidebar-link {% if request.resolver_match.url_name == 'usuario_list' or request.resolver_match.url_name == 'usuario_update' %}active{% endif %}" href="{% url 'dashboard:usuario_list' %}">
-                    <i class="bi bi-people-fill"></i>Usuarios
+        <aside class="dashboard-sidebar p-3 p-lg-4 d-flex flex-column justify-content-between">
+            <div>
+                <a class="brand d-flex flex-column mb-4" href="{% url 'dashboard:home' %}">
+                    <span class="d-flex align-items-center gap-2 fs-5"><i class="bi bi-speedometer2"></i> Dashboard</span>
+                    <small>Mi Libreria</small>
                 </a>
 
-                <hr class="border-secondary opacity-50 my-3">
+                <nav class="d-flex flex-column gap-1">
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'dashboard:home' %}">
+                        <i class="bi bi-grid-fill"></i>Inicio
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'libro_list' or request.resolver_match.url_name == 'libro_create' or request.resolver_match.url_name == 'libro_update' or request.resolver_match.url_name == 'libro_delete' %}active{% endif %}" href="{% url 'dashboard:libro_list' %}">
+                        <i class="bi bi-book-fill"></i>Libros
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'autor_list' or request.resolver_match.url_name == 'autor_create' or request.resolver_match.url_name == 'autor_update' or request.resolver_match.url_name == 'autor_delete' %}active{% endif %}" href="{% url 'dashboard:autor_list' %}">
+                        <i class="bi bi-pen-fill"></i>Autores
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'categoria_list' or request.resolver_match.url_name == 'categoria_create' or request.resolver_match.url_name == 'categoria_update' or request.resolver_match.url_name == 'categoria_delete' %}active{% endif %}" href="{% url 'dashboard:categoria_list' %}">
+                        <i class="bi bi-tags-fill"></i>Categorias
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'editorial_list' or request.resolver_match.url_name == 'editorial_create' or request.resolver_match.url_name == 'editorial_update' or request.resolver_match.url_name == 'editorial_delete' %}active{% endif %}" href="{% url 'dashboard:editorial_list' %}">
+                        <i class="bi bi-buildings-fill"></i>Editoriales
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'compra_list' or request.resolver_match.url_name == 'compra_detail' %}active{% endif %}" href="{% url 'dashboard:compra_list' %}">
+                        <i class="bi bi-cash-stack"></i>Compras
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'prestamo_list' or request.resolver_match.url_name == 'prestamo_create' %}active{% endif %}" href="{% url 'dashboard:prestamo_list' %}">
+                        <i class="bi bi-journal-check"></i>Prestamos
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'usuario_list' or request.resolver_match.url_name == 'usuario_update' %}active{% endif %}" href="{% url 'dashboard:usuario_list' %}">
+                        <i class="bi bi-people-fill"></i>Usuarios
+                    </a>
 
-                <a class="sidebar-link text-danger-emphasis" href="{% url 'home' %}">
-                    <i class="bi bi-arrow-left-circle"></i>Volver a la app
-                </a>
-            </nav>
+                    <hr class="border-secondary opacity-50 my-3">
+
+                    <a class="sidebar-link" href="{% url 'home' %}">
+                        <i class="bi bi-arrow-left-circle"></i>Volver a la app
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Botón de Logout -->
+            <div class="mt-4 pt-2 border-top border-secondary border-opacity-25">
+                <form action="{% url 'logout' %}" method="post" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" class="sidebar-btn-logout">
+                        <i class="bi bi-box-arrow-right opacity-75"></i>Cerrar sesión
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <div class="dashboard-main flex-grow-1 d-flex flex-column">
@@ -250,9 +272,6 @@
                     <div>
                         <div class="small text-muted">Panel de administracion</div>
                         <div class="fw-semibold">Hola, {{ request.user.username }}</div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge text-bg-light border">{{ request.user.get_role_display|default:'Usuario' }}</span>
                     </div>
                 </div>
             </header>

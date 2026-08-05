@@ -45,7 +45,8 @@
             transition: color 0.2s ease;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             color: #ffffff !important;
         }
 
@@ -103,6 +104,13 @@
                             <i class="bi bi-grid-fill me-1"></i>Catálogo
                         </a>
                     </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'my_loans' %}">
+                            <i class="bi bi-journal-bookmark-fill me-1"></i>Mis préstamos
+                        </a>
+                    </li>
+                    {% endif %}
                     {% if user.is_authenticated and user.is_admin %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/" target="_blank" rel="noopener">
@@ -114,11 +122,14 @@
 
                 <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
                     {% if user.is_authenticated %}
-                    <div class="d-flex align-items-center gap-2 text-white-50 me-2 small bg-dark bg-opacity-25 px-3 py-1 rounded-pill border border-secondary border-opacity-25">
+                    <div
+                        class="d-flex align-items-center gap-2 text-white-50 me-2 small bg-dark bg-opacity-25 px-3 py-1 rounded-pill border border-secondary border-opacity-25">
                         <i class="bi bi-person-circle text-info"></i>
                         <span class="text-white font-monospace">{{ user.username }}</span>
                         {% if user.get_role_display %}
-                        <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25 rounded-pill">{{ user.get_role_display }}</span>
+                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
+                            {{ user.get_role_display }}
+                        </span>
                         {% endif %}
                     </div>
                     <form action="{% url 'logout' %}" method="post" class="m-0">
@@ -144,7 +155,8 @@
         <div class="container">
             {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4"
+                role="alert">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-info-circle-fill"></i>
                     <div>{{ message }}</div>
@@ -159,7 +171,8 @@
     </main>
 
     <footer class="py-4 mt-auto">
-        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 text-muted small">
+        <div
+            class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 text-muted small">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-book text-secondary"></i>
                 <span>{% now "Y" %} <strong>Mi Librería</strong></span>

@@ -116,6 +116,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Ruta pública/URL con la que el navegador accederá a las imágenes
+MEDIA_URL = '/media/'
+
+# Ruta en el sistema de archivos donde Django guardará físicamente las imágenes
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

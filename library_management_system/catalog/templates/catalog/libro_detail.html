@@ -17,12 +17,26 @@
         font-weight: 500;
     }
 
+    .book-cover-container {
+        width: 100%;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .book-cover-img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+    }
+
     .book-cover-placeholder {
         width: 100%;
         height: 280px;
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border-radius: 0.5rem;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         color: #f8fafc;
@@ -57,11 +71,18 @@
         <div class="card book-card shadow-sm h-100">
             <div class="card-body p-4 p-md-5">
                 <div class="row g-4">
+                    <!-- SECCIÓN PORTADA DEL LIBRO -->
                     <div class="col-12 col-sm-4 col-md-3">
-                        <div class="book-cover-placeholder text-center p-3 shadow-sm">
-                            <i class="bi bi-journal-bookmark fs-1 text-info mb-2"></i>
-                            <span class="small font-monospace text-white-50">ISBN:</span>
-                            <span class="small font-monospace fw-semibold">{{ libro.isbn }}</span>
+                        <div class="book-cover-container shadow-sm">
+                            {% if libro.imagen %}
+                                <img src="{{ libro.imagen.url }}" alt="Portada de {{ libro.titulo }}" class="book-cover-img">
+                            {% else %}
+                                <div class="book-cover-placeholder text-center p-3">
+                                    <i class="bi bi-journal-bookmark fs-1 text-info mb-2"></i>
+                                    <span class="small font-monospace text-white-50">ISBN:</span>
+                                    <span class="small font-monospace fw-semibold">{{ libro.isbn }}</span>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     
@@ -105,12 +126,12 @@
                 <h2 class="h5 fw-bold mb-4 pb-2 border-bottom">Opciones de adquisición</h2>
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Precio de Venta</span>
+                    <span class="text-muted">Precio de venta</span>
                     <span class="price-tag">${{ libro.precio_compra }}</span>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Precio Alquiler (14 días)</span>
+                    <span class="text-muted">Precio de alquiler (14 días)</span>
                     <span class="price-tag text-info-emphasis">${{ libro.precio_alquiler }}</span>
                 </div>
 
@@ -129,28 +150,49 @@
                     {% endif %}
                 </div>
 
-                <div class="mt-auto">
+                <div class="mt-auto d-flex flex-column gap-3">
                     {% if user.is_authenticated %}
                         {% if libro.stock > 0 and libro.disponible %}
-                        <form action="{% url 'request_loan' libro.id %}" method="post" class="m-0">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-accent w-100 py-2.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-box-arrow-up-right"></i>
-                                <span>Solicitar préstamo</span>
-                            </button>
-                        </form>
+                            <!-- OPCIÓN 1: SOLICITAR PRÉSTAMO / ALQUILER -->
+                            <div>
+                                <label class="form-label small text-muted fw-semibold mb-1">Alquiler temporal</label>
+                                <form action="{% url 'request_loan' libro.id %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-primary w-100 py-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                        <span>Solicitar préstamo</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- OPCIÓN 2: COMPRAR / AGREGAR AL CARRITO -->
+                            <div>
+                                <label class="form-label small text-muted fw-semibold mb-1">Comprar ejemplar</label>
+                                <form action="{% url 'add_to_cart' libro.id %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-muted small">Cant.</span>
+                                        <input type="number" name="cantidad" value="1" min="1" max="{{ libro.stock }}"
+                                            class="form-control text-center fw-bold" style="max-width: 75px;" aria-label="Cantidad">
+                                        <button type="submit" class="btn btn-accent flex-grow-1 d-flex align-items-center justify-content-center gap-2">
+                                            <i class="bi bi-cart-plus fs-5"></i>
+                                            <span>Agregar al carrito</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         {% else %}
-                        <div class="alert alert-warning border-0 rounded-3 mb-0 small text-center">
-                            <i class="bi bi-exclamation-triangle me-1"></i> Este libro no está disponible actualmente.
-                        </div>
+                            <div class="alert alert-warning border-0 rounded-3 mb-0 small text-center">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Este libro no está disponible actualmente.
+                            </div>
                         {% endif %}
                     {% else %}
-                    <div class="alert alert-light border text-center rounded-3 mb-0 p-3">
-                        <p class="small text-muted mb-2">Inicia sesión para aquirir/alquilar este libro.</p>
-                        <a href="{% url 'login' %}" class="btn btn-soft btn-sm w-100 rounded-2">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
-                        </a>
-                    </div>
+                        <div class="alert alert-light border text-center rounded-3 mb-0 p-3">
+                            <p class="small text-muted mb-2">Inicia sesión para adquirir o alquilar este libro.</p>
+                            <a href="{% url 'login' %}" class="btn btn-soft btn-sm w-100 rounded-2">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
 
