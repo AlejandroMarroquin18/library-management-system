@@ -1,25 +1,127 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <h1>Registro de Usuario</h1>
+{% block title %}Registro de Usuario | Mi Librería{% endblock %}
 
-    <!-- Formulario enviado mediante POST -->
-    <form method="post">
-        {% csrf_token %}
+{% block extra_css %}
+<style>
+    .auth-card {
+        border: 1px solid var(--brand-border);
+        border-radius: 1rem;
+        background-color: #ffffff;
+    }
+    
+    .auth-header-icon {
+        width: 56px;
+        height: 56px;
+        background-color: var(--brand-blue-soft);
+        color: var(--brand-blue-accent);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .django-form-container p {
+        margin-bottom: 1.25rem;
+    }
+    .django-form-container label {
+        display: block;
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: #475569;
+        margin-bottom: 0.375rem;
+    }
+    .django-form-container input[type="text"],
+    .django-form-container input[type="password"],
+    .django-form-container input[type="email"],
+    .django-form-container select {
+        display: block;
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.95rem;
+        color: #334155;
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    .django-form-container input:focus,
+    .django-form-container select:focus {
+        border-color: var(--brand-blue-accent);
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.15);
+    }
+    .django-form-container .errorlist {
+        list-style: none;
+        padding-left: 0;
+        color: #dc2626;
+        font-size: 0.825rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0;
+    }
+    .django-form-container .helptext {
+        display: block;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center py-4">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
         
-        <!-- Renderiza los campos (username, email, passwords) generados por Django -->
-        {{ form.as_p }}
+        <div class="card auth-card shadow-sm">
+            <div class="card-body p-4 p-sm-5">
+                
+                <div class="text-center mb-4">
+                    <div class="auth-header-icon mb-3">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h1 class="h4 fw-bold text-slate-800 mb-1">Crear nueva cuenta</h1>
+                </div>
 
-        <button type="submit">Registrarse</button>
-    </form>
 
-    <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
 
-</body>
-</html>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger border-0 rounded-3 small py-2 mb-3">
+                        {% for error in form.non_field_errors %}
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <span>{{ error }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="django-form-container mb-4">
+                        {{ form.as_p }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-accent rounded-3 py-2 shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i> Completar Registro
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4 opacity-10">
+
+                <!-- Enlace de Inicio de Sesión -->
+                <p class="mb-0 text-center text-muted small">
+                    ¿Ya tienes una cuenta registrada? 
+                    <a href="{% url 'login' %}" class="fw-semibold text-decoration-none text-info-emphasis">
+                        Inicia sesión aquí
+                    </a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

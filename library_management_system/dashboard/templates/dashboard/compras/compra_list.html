@@ -1,0 +1,77 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Histórico de Compras{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <div>
+        <h1 class="page-title">Compras y Ventas</h1>
+        <p class="page-subtitle">Seguimiento de pedidos y estados de transaccion</p>
+    </div>
+</div>
+
+<div class="dashboard-card shadow-sm overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th class="ps-4">ID</th>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th class="pe-4 text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compra in compras %}
+                <tr>
+                    <td class="ps-4 fw-semibold">#{{ compra.id }}</td>
+                    <td>{{ compra.usuario.username }}</td>
+                    <td>{{ compra.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if compra.estado == 'COMPLETADA' %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Completada</span>
+                        {% elif compra.estado == 'PENDIENTE' %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill">Pendiente</span>
+                        {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">Cancelada</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold text-dark">${{ compra.total }}</td>
+                    <td class="pe-4 text-end">
+                        <a href="{% url 'dashboard:compra_detail' compra.pk %}" class="btn btn-soft btn-sm">Ver detalle</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">No hay registros de compras en el sistema.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4" aria-label="Paginacion compras">
+    <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

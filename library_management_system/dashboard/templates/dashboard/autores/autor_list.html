@@ -1,0 +1,69 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Gestión de Autores{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <div>
+        <h1 class="page-title">Autores</h1>
+        <p class="page-subtitle">Gestion y administracion de autores registrados</p>
+    </div>
+    <a href="{% url 'dashboard:autor_create' %}" class="btn btn-accent rounded-pill px-3">
+        <i class="bi bi-plus-circle me-1"></i>Nuevo autor
+    </a>
+</div>
+
+<div class="dashboard-card shadow-sm overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th class="ps-4">Nombre completo</th>
+                    <th>Pais</th>
+                    <th>Fecha Nacimiento</th>
+                    <th class="pe-4 text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for autor in autores %}
+                <tr>
+                    <td class="ps-4 fw-semibold text-dark">{{ autor.nombre }} {{ autor.apellido }}</td>
+                    <td>{{ autor.pais|default:"—" }}</td>
+                    <td>{{ autor.fecha_nacimiento|date:"d/m/Y"|default:"—" }}</td>
+                    <td class="pe-4 text-end">
+                        <a href="{% url 'dashboard:autor_update' autor.pk %}" class="btn btn-soft btn-sm me-1">Editar</a>
+                        <a href="{% url 'dashboard:autor_delete' autor.pk %}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">No hay autores registrados en el sistema.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4" aria-label="Paginacion autores">
+    <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

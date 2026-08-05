@@ -1,30 +1,110 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Resumen de Compra #{{ compra.id }}</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <a href="{% url 'home' %}">← Volver al inicio</a>
-    
-    <h1>🎉 ¡Gracias por tu compra!</h1>
-    <p><strong>Número de Orden:</strong> #{{ compra.id }}</p>
-    <p><strong>Fecha:</strong> {{ compra.fecha|date:"d/m/Y H:i" }}</p>
-    <p><strong>Estado:</strong> {{ compra.get_estado_display }}</p>
+{% block title %}Resumen de compra #{{ compra.id }} | Mi Librería{% endblock %}
 
-    <h3>Detalle de Artículos</h3>
-    <ul>
-        {% for detalle in compra.detalles.all %}
-            <li>
-                <strong>{{ detalle.cantidad }}x</strong> {{ detalle.libro.titulo }} 
-                — ${{ detalle.precio_unitario }} c/u 
-                (Subtotal: ${{ detalle.subtotal }})
-            </li>
-        {% endfor %}
-    </ul>
+{% block extra_css %}
+<style>
+    .order-card {
+        border: 1px solid var(--brand-border);
+        border-radius: 0.75rem;
+        background-color: #ffffff;
+    }
 
-    <h2>Total Cobrado: ${{ compra.total }}</h2>
+    .order-icon-badge {
+        width: 48px;
+        height: 48px;
+        background-color: #dcfce7;
+        color: #16a34a;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
 
-</body>
-</html>
+    .item-row {
+        border-bottom: 1px solid var(--brand-border);
+    }
+
+    .item-row:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" href="{% url 'home' %}">
+        <i class="bi bi-arrow-left me-1"></i>Volver al inicio
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card order-card shadow-sm overflow-hidden">
+            
+            <!-- Cabecera de la orden -->
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="order-icon-badge flex-shrink-0">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="h4 fw-bold text-slate-800 mb-1">¡Gracias por tu compra!</h1>
+                        <p class="text-muted small mb-0">Hemos registrado tu orden correctamente</p>
+                    </div>
+                </div>
+
+                <!-- Datos de la orden -->
+                <div class="bg-light rounded-3 p-3 mb-4 border">
+                    <div class="row g-3 text-sm">
+                        <div class="col-12 col-sm-4">
+                            <span class="d-block text-muted small">Número de orden</span>
+                            <span class="fw-bold font-monospace">#{{ compra.id }}</span>
+                        </div>
+                        <div class="col-12 col-sm-4">
+                            <span class="d-block text-muted small">Fecha y hora</span>
+                            <span class="fw-medium">{{ compra.fecha|date:"d/m/Y H:i" }}</span>
+                        </div>
+                        <div class="col-12 col-sm-4">
+                            <span class="d-block text-muted small">Estado</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                {{ compra.get_estado_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalle de artículos -->
+                <h2 class="h6 fw-bold text-slate-800 mb-3 text-uppercase tracking-wider" style="font-size: 0.75rem;">Detalle de artículos</h2>
+                
+                <div class="border rounded-3 mb-4">
+                    {% for detalle in compra.detalles.all %}
+                    <div class="item-row p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-slate-100 text-dark border font-monospace px-2 py-1">
+                                {{ detalle.cantidad }}x
+                            </span>
+                            <span class="fw-medium text-dark">{{ detalle.libro.titulo }}</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-semibold text-dark">${{ detalle.subtotal }}</span>
+                            <small class="d-block text-muted" style="font-size: 0.75rem;">
+                                ${{ detalle.precio_unitario }} c/u
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Total cobrado -->
+                <div class="d-flex justify-content-between align-items-center p-3 rounded-3 bg-success-subtle text-success-emphasis border border-success-subtle">
+                    <span class="fw-bold">Total cobrado:</span>
+                    <span class="fs-4 fw-bold">${{ compra.total }}</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
