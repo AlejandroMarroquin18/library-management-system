@@ -1,15 +1,15 @@
 {% extends 'dashboard/base_dashboard.html' %}
 
-{% block title %}Gestión de Categorías{% endblock %}
+{% block title %}Gestión de categorías{% endblock %}
 
 {% block content %}
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
     <div>
-        <h1 class="page-title">Categorias</h1>
-        <p class="page-subtitle">Organiza los libros por clasificacion tematica</p>
+        <h1 class="page-title">Categorías</h1>
+        <p class="page-subtitle">Organiza los libros por clasificación temática</p>
     </div>
     <a href="{% url 'dashboard:categoria_create' %}" class="btn btn-accent rounded-pill px-3">
-        <i class="bi bi-plus-circle me-1"></i>Nueva categoria
+        <i class="bi bi-plus-circle me-1"></i>Nueva categoría
     </a>
 </div>
 

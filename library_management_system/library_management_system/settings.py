@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(dotenv_path=BASE_DIR / '.env')
 
+# Configuración de la base de datos desde variables de entorno
 DB_NAME = os.getenv('DB_NAME')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     'loans',    
     'sales',
     'users',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -116,9 +118,31 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Ruta pública/URL con la que el navegador accederá a las imágenes
-MEDIA_URL = '/media/'
+#Configuración del almacenamiento 
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
 
+# Configuración obligatoria para Supabase S3
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_QUERYSTRING_AUTH = False  # Para generar URLs públicas limpias
+AWS_S3_FILE_OVERWRITE = False
+
+# Configuración nativa de almacenamiento en Django 4.2+ / 5.x / 6.x
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# Ruta pública/URL con la que el navegador accederá a las imágenes
+AWS_S3_CUSTOM_DOMAIN = f"zfhocfumkppbtjyndadd.supabase.co/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}"
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 # Ruta en el sistema de archivos donde Django guardará físicamente las imágenes
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
