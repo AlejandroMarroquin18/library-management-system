@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Panel de Control{% endblock %} | Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --bs-font-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
+            --brand-navy: #1e293b;
+            --brand-blue-accent: #0284c7;
+            --brand-blue-soft: #f0f9ff;
+            --brand-border: #e2e8f0;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+        }
+
+        .dashboard-shell {
+            min-height: 100vh;
+        }
+
+        .dashboard-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .dashboard-sidebar .brand {
+            color: #f8fafc;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .dashboard-sidebar .brand small {
+            color: #7dd3fc;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 0.65rem 0.85rem;
+            border-radius: 0.65rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #ffffff;
+            background-color: rgba(148, 163, 184, 0.18);
+        }
+
+        .dashboard-main {
+            min-width: 0;
+        }
+
+        .dashboard-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--brand-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .btn-accent {
+            background-color: var(--brand-blue-accent);
+            color: #ffffff;
+            border: none;
+            font-weight: 500;
+        }
+
+        .btn-accent:hover {
+            background-color: #0369a1;
+            color: #ffffff;
+        }
+
+        .btn-soft {
+            background-color: var(--brand-blue-soft);
+            color: var(--brand-blue-accent);
+            border: 1px solid #bae6fd;
+            font-weight: 500;
+        }
+
+        .btn-soft:hover {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .dashboard-card {
+            border: 1px solid var(--brand-border);
+            border-radius: 0.85rem;
+            background-color: #ffffff;
+        }
+
+        .table-custom th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            background-color: #f8fafc;
+            border-bottom: 1px solid var(--brand-border);
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .table-custom td {
+            padding-top: 0.875rem;
+            padding-bottom: 0.875rem;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .page-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+
+        .django-form-container p {
+            margin-bottom: 1.1rem;
+        }
+
+        .django-form-container label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #475569;
+            margin-bottom: 0.35rem;
+        }
+
+        .django-form-container input,
+        .django-form-container textarea,
+        .django-form-container select {
+            display: block;
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            font-size: 0.95rem;
+            color: #334155;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .django-form-container input:focus,
+        .django-form-container textarea:focus,
+        .django-form-container select:focus {
+            border-color: var(--brand-blue-accent);
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.15);
+        }
+
+        .django-form-container .errorlist {
+            list-style: none;
+            padding-left: 0;
+            color: #dc2626;
+            font-size: 0.825rem;
+            margin-top: 0.25rem;
+            margin-bottom: 0;
+        }
+
+        .django-form-container .helptext {
+            display: block;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .dashboard-sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="dashboard-shell d-lg-flex">
+        <aside class="dashboard-sidebar p-3 p-lg-4">
+            <a class="brand d-flex flex-column mb-4" href="{% url 'dashboard:home' %}">
+                <span class="d-flex align-items-center gap-2 fs-5"><i class="bi bi-speedometer2"></i> Dashboard</span>
+                <small>Mi Libreria</small>
+            </a>
+
+            <nav class="d-flex flex-column gap-1">
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'dashboard:home' %}">
+                    <i class="bi bi-grid-fill"></i>Inicio
+                </a>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'libro_list' or request.resolver_match.url_name == 'libro_create' or request.resolver_match.url_name == 'libro_update' or request.resolver_match.url_name == 'libro_delete' %}active{% endif %}" href="{% url 'dashboard:libro_list' %}">
+                    <i class="bi bi-book-fill"></i>Libros
+                </a>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'autor_list' or request.resolver_match.url_name == 'autor_create' or request.resolver_match.url_name == 'autor_update' or request.resolver_match.url_name == 'autor_delete' %}active{% endif %}" href="{% url 'dashboard:autor_list' %}">
+                    <i class="bi bi-pen-fill"></i>Autores
+                </a>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'categoria_list' or request.resolver_match.url_name == 'categoria_create' or request.resolver_match.url_name == 'categoria_update' or request.resolver_match.url_name == 'categoria_delete' %}active{% endif %}" href="{% url 'dashboard:categoria_list' %}">
+                    <i class="bi bi-tags-fill"></i>Categorias
+                </a>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'editorial_list' or request.resolver_match.url_name == 'editorial_create' or request.resolver_match.url_name == 'editorial_update' or request.resolver_match.url_name == 'editorial_delete' %}active{% endif %}" href="{% url 'dashboard:editorial_list' %}">
+                    <i class="bi bi-buildings-fill"></i>Editoriales
+                </a>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'compra_list' or request.resolver_match.url_name == 'compra_detail' %}active{% endif %}" href="{% url 'dashboard:compra_list' %}">
+                    <i class="bi bi-cash-stack"></i>Compras
+                </a>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'prestamo_list' or request.resolver_match.url_name == 'prestamo_create' %}active{% endif %}" href="{% url 'dashboard:prestamo_list' %}">
+                    <i class="bi bi-journal-check"></i>Prestamos
+                </a>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'usuario_list' or request.resolver_match.url_name == 'usuario_update' %}active{% endif %}" href="{% url 'dashboard:usuario_list' %}">
+                    <i class="bi bi-people-fill"></i>Usuarios
+                </a>
+
+                <hr class="border-secondary opacity-50 my-3">
+
+                <a class="sidebar-link text-danger-emphasis" href="{% url 'home' %}">
+                    <i class="bi bi-arrow-left-circle"></i>Volver a la app
+                </a>
+            </nav>
+        </aside>
+
+        <div class="dashboard-main flex-grow-1 d-flex flex-column">
+            <header class="dashboard-header py-3 px-3 px-md-4">
+                <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between">
+                    <div>
+                        <div class="small text-muted">Panel de administracion</div>
+                        <div class="fw-semibold">Hola, {{ request.user.username }}</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge text-bg-light border">{{ request.user.get_role_display|default:'Usuario' }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-3 p-md-4 flex-grow-1">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
