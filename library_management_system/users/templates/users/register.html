@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
 
 {% block title %}Registro de Usuario | Mi Librería{% endblock %}
 
@@ -108,6 +109,12 @@
                         </button>
                     </div>
                 </form>
+
+                <div class="d-grid mt-3">
+                    <a href="{% provider_login_url 'google' process='signup' %}" class="btn btn-outline-dark rounded-3 py-2">
+                        <i class="bi bi-google me-1"></i> Registrarse con Google
+                    </a>
+                </div>
 
                 <hr class="my-4 opacity-10">
 

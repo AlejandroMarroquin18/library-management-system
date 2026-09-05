@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Acceder con Google | Mi Librería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .oauth-card {
+        max-width: 34rem;
+        border: 1px solid var(--brand-border);
+        border-radius: 1rem;
+        background-color: #ffffff;
+    }
+
+    .oauth-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--brand-blue-soft);
+        color: var(--brand-blue-accent);
+        font-size: 1.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4 py-md-5">
+    <div class="col-12 col-md-8">
+        <div class="card oauth-card shadow-sm mx-auto">
+            <div class="card-body p-4 p-md-5 text-center">
+                <div class="oauth-icon mb-4" aria-hidden="true">
+                    <i class="bi bi-google"></i>
+                </div>
+                {% if process == 'connect' %}
+                <h1 class="h4 fw-bold text-slate-800 mb-2">Conecta tu cuenta de Google</h1>
+                <p class="text-muted mb-4">Vas a vincular una nueva cuenta de Google con Mi Librería.</p>
+                {% else %}
+                <h1 class="h4 fw-bold text-slate-800 mb-2">Continúa con Google</h1>
+                <p class="text-muted mb-4">Usa tu cuenta de Google para acceder a Mi Librería de forma segura.</p>
+                {% endif %}
+
+                <form method="post" class="d-grid">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-accent rounded-3 py-2 shadow-sm">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Continuar
+                    </button>
+                </form>
+
+                <a href="{% url 'login' %}" class="btn btn-link text-muted text-decoration-none mt-3">Volver al acceso</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

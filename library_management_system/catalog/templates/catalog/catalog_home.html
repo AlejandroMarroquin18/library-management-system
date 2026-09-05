@@ -6,7 +6,7 @@
 <style>
     .catalog-card {
         border: 1px solid var(--brand-border);
-        border-radius: 0.75rem;
+        border-radius: 0.55rem;
         background-color: #ffffff;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -17,7 +17,8 @@
     }
 
     .book-cover-container {
-        height: 220px;
+        aspect-ratio: 2 / 3;
+        max-height: 250px;
         background-color: #f1f5f9;
         border-top-left-radius: 0.75rem;
         border-top-right-radius: 0.75rem;
@@ -31,7 +32,8 @@
     .book-cover-img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        background-color: #e2e8f0;
     }
 
     .book-cover-placeholder {
@@ -49,73 +51,47 @@
         color: var(--brand-blue-accent);
         border: 1px solid #bae6fd;
         font-weight: 500;
-        font-size: 0.75rem;
-    }
-
-    .search-card {
-        border: 1px solid var(--brand-border);
-        border-radius: 0.75rem;
-    }
-
-    .cat-btn {
-        border-radius: 2rem;
-        padding: 0.25rem 0.85rem;
-        font-size: 0.85rem;
-        font-weight: 500;
+        font-size: 0.65rem;
     }
 
     .price-text {
-        font-size: 1.15rem;
+        font-size: 0.9rem;
         font-weight: 700;
         color: #0f172a;
+    }
+
+    .catalog-meta {
+        border-top: 1px solid var(--brand-border);
+        border-bottom: 1px solid var(--brand-border);
+        padding: 0.5rem 0;
+    }
+
+    .catalog-card .card-title {
+        font-size: 0.82rem;
+        line-height: 1.25;
+    }
+
+    .catalog-card .card-body {
+        font-size: 0.78rem;
+    }
+
+    .catalog-card .btn,
+    .catalog-card .form-control {
+        font-size: 0.72rem;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="row g-4">
-    <!-- Filtros y Búsqueda -->
-    <div class="col-12">
-        <div class="card search-card shadow-sm">
-            <div class="card-body p-4">
-                <h1 class="h4 fw-bold text-slate-800 mb-3">Catálogo de libros</h1>
-                
-                <form method="get" action="{% url 'home' %}" class="row g-2 align-items-center">
-                    <div class="col-12 col-md">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0 text-muted">
-                                <i class="bi bi-search"></i>
-                            </span>
-                            <input type="text" name="q" value="{{ search_query }}" class="form-control border-start-0 ps-0"
-                                placeholder="Buscar por título, autor o ISBN...">
-                        </div>
-                    </div>
-                    {% if categoria_seleccionada %}
-                    <input type="hidden" name="categoria" value="{{ categoria_seleccionada }}">
-                    {% endif %}
-                    <div class="col-12 col-md-auto d-flex gap-2">
-                        <button type="submit" class="btn btn-accent px-4">Buscar</button>
-                        {% if search_query %}
-                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">Limpiar</a>
-                        {% endif %}
-                    </div>
-                </form>
-
-                <hr class="my-3 opacity-10">
-
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <span class="small text-muted fw-semibold me-1"><i class="bi bi-funnel me-1"></i>Categorías:</span>
-                    <a class="btn cat-btn {% if not categoria_seleccionada %}btn-accent{% else %}btn-soft{% endif %}"
-                        href="{% url 'home' %}{% if search_query %}?q={{ search_query }}{% endif %}">Todas</a>
-                    {% for cat in categorias %}
-                    <a class="btn cat-btn {% if cat.id|add:0 == categoria_seleccionada|add:0 %}btn-accent{% else %}btn-soft{% endif %}"
-                        href="?categoria={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}">
-                        {{ cat.nombre }}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
+<div class="row g-3">
+    <div class="col-12 d-flex justify-content-between align-items-end mb-1">
+        <div>
+            <h1 class="h4 fw-bold text-slate-800 mb-1">Catálogo de libros</h1>
+            <p class="text-muted small mb-0">Explora historias, autores y nuevas lecturas.</p>
         </div>
+        {% if search_query or categoria_seleccionada %}
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+        {% endif %}
     </div>
 
     {% if search_query %}
@@ -130,7 +106,7 @@
     <!-- Listado de Libros -->
     {% if libros %}
     {% for libro in libros %}
-    <div class="col-12 col-md-6 col-xl-4">
+    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
         <div class="card catalog-card h-100 shadow-sm">
             
             <!-- Imagen / Portada -->
@@ -147,24 +123,24 @@
                 </span>
             </div>
 
-            <div class="card-body p-4 d-flex flex-column">
+            <div class="card-body p-2 d-flex flex-column">
                 <h2 class="h6 fw-bold card-title mb-1">
                     <a class="text-decoration-none text-dark hover-blue" href="{% url 'libro_detail' libro.id %}">
                         {{ libro.titulo }}
                     </a>
                 </h2>
                 
-                <p class="text-muted small mb-3">
+                <p class="text-muted small mb-2 text-truncate">
                     <i class="bi bi-person me-1"></i>{{ libro.autor }}
                 </p>
 
-                <div class="d-flex justify-content-between align-items-center mb-3 mt-auto">
+                <div class="catalog-meta d-flex flex-column gap-2 mb-3 mt-auto">
                     <div>
-                        <span class="d-block text-muted small" style="font-size: 0.75rem;">Precio</span>
+                        <span class="d-block text-muted small" style="font-size: 0.65rem;">Precio</span>
                         <span class="price-text">${{ libro.precio_compra }}</span>
                     </div>
-                    <div class="text-end">
-                        <span class="d-block text-muted small" style="font-size: 0.75rem;">Stock</span>
+                    <div>
+                        <span class="d-block text-muted small" style="font-size: 0.65rem;">Stock</span>
                         {% if libro.stock > 0 %}
                         <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
                             {{ libro.stock }} disp.
@@ -203,6 +179,22 @@
         </div>
     </div>
     {% endfor %}
+
+    {% if is_paginated %}
+    <div class="col-12">
+        <nav aria-label="Paginación del catálogo" class="d-flex justify-content-center mt-2">
+            <ul class="pagination mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">Anterior</a></li>
+                {% endif %}
+                <li class="page-item active" aria-current="page"><span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">Siguiente</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
     {% else %}
     <div class="col-12">
         <div class="card border-0 shadow-sm p-5 text-center">

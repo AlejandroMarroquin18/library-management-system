@@ -52,6 +52,33 @@
             color: #ffffff !important;
         }
 
+        .navbar-search {
+            max-width: 31rem;
+            flex: 1 1 20rem;
+        }
+
+        .navbar-search .form-control,
+        .navbar-search .form-select {
+            border: 0;
+            background-color: #ffffff;
+            color: #334155;
+        }
+
+        .navbar-search .form-select {
+            max-width: 9rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-search {
+                max-width: none;
+                flex-basis: 100%;
+            }
+
+            .navbar-search .form-select {
+                max-width: 100%;
+            }
+        }
+
         .btn-accent {
             background-color: var(--brand-blue-accent);
             color: #ffffff;
@@ -121,6 +148,26 @@
                     </li>
                     {% endif %}
                 </ul>
+
+                <form method="get" action="{% url 'home' %}" class="navbar-search d-flex flex-column flex-sm-row gap-2 me-lg-3 mt-3 mt-lg-0">
+                    <div class="input-group input-group-sm flex-grow-1">
+                        <span class="input-group-text bg-white border-0 text-muted">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                        </span>
+                        <input type="search" name="q" value="{{ search_query|default:'' }}" class="form-control" placeholder="Buscar libros, autores o ISBN" aria-label="Buscar en el catálogo">
+                    </div>
+                    {% if categorias %}
+                    <select name="categoria" class="form-select form-select-sm" aria-label="Filtrar por categoría">
+                        <option value="">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria.id == categoria_seleccionada %}selected{% endif %}>{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    <button type="submit" class="btn btn-accent btn-sm px-3" aria-label="Buscar">
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </form>
 
                 <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
                     {% if user.is_authenticated %}

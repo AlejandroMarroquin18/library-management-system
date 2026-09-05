@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from core.models import TimeStampedModel
 
 # Create your models here.
@@ -76,3 +78,24 @@ class Libro(TimeStampedModel):
 
     def __str__(self):
         return self.titulo
+
+
+class Review(TimeStampedModel):
+    libro = models.ForeignKey(Libro, on_delete=models.CASCADE, related_name='resenas')
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='resenas')
+    puntuacion = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comentario = models.TextField(max_length=1000)
+    aprobada = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['libro', 'usuario'], name='unique_review_per_user_book')
+        ]
+        verbose_name = 'Reseña'
+        verbose_name_plural = 'Reseñas'
+
+    def __str__(self):
+        return f'Reseña de {self.libro} por {self.usuario}'

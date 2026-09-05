@@ -19,6 +19,8 @@
 
     .book-cover-container {
         width: 100%;
+        aspect-ratio: 2 / 3;
+        max-height: 420px;
         border-radius: 0.5rem;
         overflow: hidden;
     }
@@ -26,13 +28,15 @@
     .book-cover-img {
         width: 100%;
         height: 280px;
-        object-fit: cover;
+        height: 100%;
+        object-fit: contain;
+        background-color: #e2e8f0;
         border-radius: 0.5rem;
     }
 
     .book-cover-placeholder {
         width: 100%;
-        height: 280px;
+        height: 100%;
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border-radius: 0.5rem;
         display: flex;
@@ -196,6 +200,63 @@
                     {% endif %}
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card book-card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 fw-bold mb-0">Reseñas de lectores</h2>
+                    <span class="text-muted small">{{ resenas|length }} publicada{{ resenas|length|pluralize:"s" }}{% if promedio_resenas %} · {{ promedio_resenas|floatformat:1 }}/5{% endif %}</span>
+                </div>
+
+                {% for resena in resenas %}
+                <article class="border-top py-3">
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <strong>{{ resena.usuario.username }}</strong>
+                            <span class="text-warning ms-2" aria-label="{{ resena.puntuacion }} de 5">
+                                {% for star in "12345" %}{% if forloop.counter <= resena.puntuacion %}★{% else %}☆{% endif %}{% endfor %}
+                            </span>
+                        </div>
+                        <time class="small text-muted" datetime="{{ resena.created_at|date:'c' }}">{{ resena.created_at|date:"d/m/Y" }}</time>
+                    </div>
+                    <p class="text-secondary mb-2 mt-2">{{ resena.comentario }}</p>
+                    {% if user == resena.usuario %}
+                    <a href="{% url 'review_edit' resena.id %}" class="btn btn-link btn-sm p-0 me-2">Editar</a>
+                    <form method="post" action="{% url 'review_delete' resena.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm text-danger p-0">Eliminar mi reseña</button>
+                    </form>
+                    {% endif %}
+                </article>
+                {% empty %}
+                <p class="text-muted small border-top pt-3">Todavía no hay reseñas publicadas.</p>
+                {% endfor %}
+
+                {% if user.is_authenticated %}
+                <div class="border-top pt-4 mt-2">
+                    <h3 class="h6 fw-bold">Comparte tu opinión</h3>
+                    <form method="post" action="{% url 'review_create' libro.id %}">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-4">
+                                {{ review_form.puntuacion.label_tag }}
+                                {{ review_form.puntuacion }}
+                            </div>
+                            <div class="col-12">
+                                {{ review_form.comentario.label_tag }}
+                                {{ review_form.comentario }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-accent mt-3">Enviar reseña</button>
+                    </form>
+                </div>
+                {% else %}
+                <p class="small text-muted border-top pt-3 mt-3 mb-0"><a href="{% url 'login' %}">Inicia sesión</a> para publicar una reseña.</p>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from users.decorators import admin_required
 from .services import LoanService
 from .models import Loan
@@ -27,7 +28,12 @@ def my_loans_view(request):
     LoanService.update_overdue_status()
 
     user_loans = Loan.objects.filter(user=request.user).select_related('book')
-    return render(request, 'loans/my_loans.html', {'loans': user_loans})
+    page_obj = Paginator(user_loans, 10).get_page(request.GET.get('page'))
+    return render(request, 'loans/my_loans.html', {
+        'loans': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.paginator.num_pages > 1,
+    })
 
 
 # VISTAS DEL ADMINISTRADOR (ADMIN)
@@ -42,8 +48,11 @@ def admin_loans_list_view(request):
     if status_filter in [Loan.Status.ACTIVE, Loan.Status.RETURNED, Loan.Status.OVERDUE]:
         loans = loans.filter(status=status_filter)
 
+    page_obj = Paginator(loans, 10).get_page(request.GET.get('page'))
     context = {
-        'loans': loans,
+        'loans': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.paginator.num_pages > 1,
         'status_filter': status_filter,
         'statuses': Loan.Status.choices
     }
