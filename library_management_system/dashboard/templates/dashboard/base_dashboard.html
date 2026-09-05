@@ -241,6 +241,10 @@
                     <a class="sidebar-link {% if request.resolver_match.url_name == 'compra_list' or request.resolver_match.url_name == 'compra_detail' %}active{% endif %}" href="{% url 'dashboard:compra_list' %}">
                         <i class="bi bi-cash-stack"></i>Compras
                     </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'review_list' %}active{% endif %}" href="{% url 'dashboard:review_list' %}">
+                        <i class="bi bi-star-fill"></i>Reseñas
+                        {% if resenas_pendientes %}<span class="badge rounded-pill bg-warning text-dark ms-auto">{{ resenas_pendientes }}</span>{% endif %}
+                    </a>
                     <a class="sidebar-link {% if request.resolver_match.url_name == 'prestamo_list' or request.resolver_match.url_name == 'prestamo_create' %}active{% endif %}" href="{% url 'dashboard:prestamo_list' %}">
                         <i class="bi bi-journal-check"></i>Préstamos
                     </a>

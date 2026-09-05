@@ -13,6 +13,8 @@ from .views import (
     LoanListView, LoanCreateView, LoanReturnView,
     # Compras
     CompraListView, CompraDetailView, CompraStatusUpdateView,
+    # Reseñas
+    ReviewListView, ReviewStatusUpdateView,
     # Usuarios
     UserListView, UserUpdateView, UserToggleActiveView,
 )
@@ -40,6 +42,9 @@ urlpatterns = [
     path('compras/', CompraListView.as_view(), name='compra_list'),
     path('compras/<int:pk>/', CompraDetailView.as_view(), name='compra_detail'),
     path('compras/<int:pk>/cambiar-estado/', CompraStatusUpdateView.as_view(), name='compra_status_update'),
+    # Reseñas
+    path('resenas/', ReviewListView.as_view(), name='review_list'),
+    path('resenas/<int:pk>/cambiar-estado/', ReviewStatusUpdateView.as_view(), name='review_status_update'),
 
     # Categorías
     path('categorias/', CategoriaListView.as_view(), name='categoria_list'),

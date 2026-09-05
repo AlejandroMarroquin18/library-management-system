@@ -25,6 +25,20 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4">
+        <a href="{% url 'dashboard:review_list' %}" class="text-decoration-none">
+            <div class="dashboard-card shadow-sm h-100 border-warning-subtle">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start justify-content-between mb-2">
+                        <h2 class="h6 text-uppercase text-muted fw-semibold mb-0">Reseñas pendientes</h2>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <div class="display-6 fw-bold text-dark mb-0">{{ resenas_pendientes }}</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4">
         <div class="dashboard-card shadow-sm h-100">
             <div class="card-body p-4">
                 <div class="d-flex align-items-start justify-content-between mb-2">

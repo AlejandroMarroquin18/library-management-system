@@ -1,10 +1,11 @@
 from datetime import timedelta
 from django.db import transaction
 from django.views.generic import DetailView, TemplateView, ListView, CreateView, UpdateView, DeleteView, View
+from django.db.models import Q
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from users.mixins import AdminRequiredMixin
-from catalog.models import Autor, Categoria, Editorial, Libro
+from catalog.models import Autor, Categoria, Editorial, Libro, Review
 from sales.models import Compra
 from loans.models import Loan
 from django.urls import reverse_lazy
@@ -294,6 +295,47 @@ class CompraStatusUpdateView(AdminRequiredMixin, View):
             messages.error(request, 'Estado no válido.')
 
         return redirect('dashboard:compra_detail', pk=compra.pk)
+
+
+# --- MÓDULO DE RESEÑAS ---
+
+class ReviewListView(AdminRequiredMixin, ListView):
+    model = Review
+    template_name = 'dashboard/resenas/resena_list.html'
+    context_object_name = 'resenas'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Review.objects.select_related('libro', 'usuario')
+        status_filter = self.request.GET.get('estado', '').strip()
+        search_query = self.request.GET.get('q', '').strip()
+        if status_filter == 'pendientes':
+            queryset = queryset.filter(aprobada=False)
+        elif status_filter == 'aprobadas':
+            queryset = queryset.filter(aprobada=True)
+        if search_query:
+            queryset = queryset.filter(
+                Q(libro__titulo__icontains=search_query) |
+                Q(usuario__username__icontains=search_query) |
+                Q(comentario__icontains=search_query)
+            )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['estado_filter'] = self.request.GET.get('estado', '')
+        context['search_query'] = self.request.GET.get('q', '')
+        return context
+
+
+class ReviewStatusUpdateView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        review.aprobada = request.POST.get('estado') == 'aprobar'
+        review.save(update_fields=['aprobada', 'updated_at'])
+        estado = 'aprobada' if review.aprobada else 'rechazada'
+        messages.success(request, f'La reseña de "{review.libro.titulo}" fue {estado}.')
+        return redirect('dashboard:review_list')
 
 # --- MÓDULO DE Usuarips ---
 

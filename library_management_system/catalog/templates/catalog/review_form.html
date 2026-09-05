@@ -6,8 +6,8 @@
 <style>
     .star-rating {
         display: inline-flex;
-        flex-direction: row-reverse;
-        justify-content: flex-end;
+        flex-direction: row;
+        justify-content: flex-start;
         gap: 0.1rem;
     }
 
@@ -24,8 +24,7 @@
     }
 
     .star-rating label:hover,
-    .star-rating label:hover ~ label,
-    .star-rating input:checked ~ label {
+    .star-rating input:checked + label {
         color: #f59e0b;
     }
 </style>
