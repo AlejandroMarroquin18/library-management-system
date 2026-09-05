@@ -2,6 +2,35 @@
 
 {% block title %}Editar reseña | Mi Librería{% endblock %}
 
+{% block extra_css %}
+<style>
+    .star-rating {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.1rem;
+    }
+
+    .star-rating input {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .star-rating label {
+        color: #cbd5e1;
+        cursor: pointer;
+        font-size: 1.8rem;
+        line-height: 1;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+        color: #f59e0b;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
@@ -11,7 +40,22 @@
                 <p class="text-muted small mb-4">{{ review.libro.titulo }}</p>
                 <form method="post">
                     {% csrf_token %}
-                    {{ form.as_p }}
+                    {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+                    <div class="mb-3">
+                        <span class="form-label d-block">Tu valoración</span>
+                        <div class="star-rating" role="radiogroup" aria-label="Selecciona una valoración de una a cinco estrellas">
+                            {% for star in "12345" %}
+                            <input type="radio" name="puntuacion" value="{{ forloop.counter }}" id="edit-star-{{ forloop.counter }}" {% if form.puntuacion.value == forloop.counter|stringformat:'i' %}checked{% endif %}>
+                            <label for="edit-star-{{ forloop.counter }}" title="{{ forloop.counter }} estrella{{ forloop.counter|pluralize }}">★</label>
+                            {% endfor %}
+                        </div>
+                        {% for error in form.puntuacion.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.comentario.label_tag }}
+                        {{ form.comentario }}
+                        {% for error in form.comentario.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
                     <div class="d-flex gap-2 mt-3">
                         <button type="submit" class="btn btn-accent">Guardar cambios</button>
                         <a href="{% url 'libro_detail' review.libro_id %}" class="btn btn-light border">Cancelar</a>

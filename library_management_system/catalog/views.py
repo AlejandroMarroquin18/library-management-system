@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
-from django.db.models import Avg, Q
+from django.db.models import Avg, F, Q
 from users.decorators import admin_required
 from .forms import ReviewForm
 from .models import Libro, Categoria, Autor, Editorial, Review
@@ -38,6 +38,18 @@ class CatalogHomeView(ListView):
         if categoria_id and categoria_id.isdigit():
             queryset = queryset.filter(categoria_id=int(categoria_id))
 
+        queryset = queryset.annotate(
+            promedio_resenas=Avg('resenas__puntuacion', filter=Q(resenas__aprobada=True))
+        )
+        order = self.request.GET.get('orden', 'titulo')
+        if order == 'genero':
+            queryset = queryset.order_by('categoria__nombre', 'titulo')
+        elif order == 'valoracion':
+            queryset = queryset.order_by(F('promedio_resenas').desc(nulls_last=True), 'titulo')
+        else:
+            order = 'titulo'
+            queryset = queryset.order_by('titulo')
+        self.order = order
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -50,6 +62,12 @@ class CatalogHomeView(ListView):
         context['categorias'] = Categoria.objects.all()
         context['search_query'] = search_query
         context['categoria_seleccionada'] = int(categoria_id) if categoria_id and categoria_id.isdigit() else None
+        context['orden_seleccionada'] = getattr(self, 'order', self.request.GET.get('orden', 'titulo'))
+        context['ordenes'] = (
+            ('titulo', 'Título'),
+            ('genero', 'Género'),
+            ('valoracion', 'Valoración'),
+        )
         
         return context
 
@@ -71,13 +89,35 @@ class LibroDetailView(DetailView):
         context['resenas'] = self.object.resenas.filter(aprobada=True).select_related('usuario')
         context['review_form'] = ReviewForm()
         context['promedio_resenas'] = context['resenas'].aggregate(promedio=Avg('puntuacion'))['promedio']
+        context['puede_resenar'] = self._user_can_review()
         return context
+
+    def _user_can_review(self):
+        if not self.request.user.is_authenticated:
+            return False
+        from loans.models import Loan
+        from sales.models import Compra
+        return Compra.objects.filter(
+            usuario=self.request.user,
+            estado=Compra.Estado.COMPLETADA,
+            detalles__libro=self.object,
+        ).exists() or Loan.objects.filter(user=self.request.user, book=self.object).exists()
 
 
 @login_required
 @require_POST
 def review_create_view(request, book_id):
     libro = get_object_or_404(Libro, pk=book_id)
+    from loans.models import Loan
+    from sales.models import Compra
+    can_review = Compra.objects.filter(
+        usuario=request.user,
+        estado=Compra.Estado.COMPLETADA,
+        detalles__libro=libro,
+    ).exists() or Loan.objects.filter(user=request.user, book=libro).exists()
+    if not can_review:
+        messages.error(request, 'Solo puedes reseñar libros que hayas comprado o solicitado en préstamo.')
+        return redirect('libro_detail', pk=libro.pk)
     form = ReviewForm(request.POST)
     if form.is_valid():
         review, created = Review.objects.update_or_create(

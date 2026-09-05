@@ -139,6 +139,11 @@
                             <i class="bi bi-journal-bookmark-fill me-1"></i>Mis préstamos
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'my_purchases' %}">
+                            <i class="bi bi-bag-check-fill me-1"></i>Mis compras
+                        </a>
+                    </li>
                     {% endif %}
                     {% if user.is_authenticated and user.is_admin %}
                     <li class="nav-item">
@@ -161,6 +166,13 @@
                         <option value="">Todas las categorías</option>
                         {% for categoria in categorias %}
                         <option value="{{ categoria.id }}" {% if categoria.id == categoria_seleccionada %}selected{% endif %}>{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    {% if ordenes %}
+                    <select name="orden" class="form-select form-select-sm" aria-label="Ordenar catálogo">
+                        {% for value, label in ordenes %}
+                        <option value="{{ value }}" {% if value == orden_seleccionada %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                     {% endif %}

@@ -66,6 +66,12 @@
         padding: 0.5rem 0;
     }
 
+    .catalog-rating {
+        color: #f59e0b;
+        font-size: 0.72rem;
+        letter-spacing: 0;
+    }
+
     .catalog-card .card-title {
         font-size: 0.82rem;
         line-height: 1.25;
@@ -134,6 +140,10 @@
                     <i class="bi bi-person me-1"></i>{{ libro.autor }}
                 </p>
 
+                <div class="catalog-rating mb-2" aria-label="{% if libro.promedio_resenas %}{{ libro.promedio_resenas|floatformat:1 }} de 5{% else %}Sin valoraciones{% endif %}">
+                    {% if libro.promedio_resenas %}★ {{ libro.promedio_resenas|floatformat:1 }}{% else %}☆ Sin valoraciones{% endif %}
+                </div>
+
                 <div class="catalog-meta d-flex flex-column gap-2 mb-3 mt-auto">
                     <div>
                         <span class="d-block text-muted small" style="font-size: 0.65rem;">Precio</span>
@@ -185,11 +195,11 @@
         <nav aria-label="Paginación del catálogo" class="d-flex justify-content-center mt-2">
             <ul class="pagination mb-0">
                 {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">Anterior</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}&orden={{ orden_seleccionada }}">Anterior</a></li>
                 {% endif %}
                 <li class="page-item active" aria-current="page"><span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
                 {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">Siguiente</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}&orden={{ orden_seleccionada }}">Siguiente</a></li>
                 {% endif %}
             </ul>
         </nav>

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from .services import CartService, OrderService
 from .models import Compra
 
@@ -80,3 +81,16 @@ def order_detail_view(request, compra_id):
         usuario=request.user
     )
     return render(request, 'sales/order_detail.html', {'compra': compra})
+
+
+@login_required
+def my_purchases_view(request):
+    purchases = Compra.objects.filter(
+        usuario=request.user
+    ).prefetch_related('detalles__libro')
+    page_obj = Paginator(purchases, 10).get_page(request.GET.get('page'))
+    return render(request, 'sales/my_purchases.html', {
+        'compras': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.paginator.num_pages > 1,
+    })

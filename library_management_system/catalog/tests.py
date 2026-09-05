@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from datetime import date, timedelta
 
 from .models import Autor, Categoria, Libro, Review
+from loans.models import Loan
 
 
 class CatalogFeatureTests(TestCase):
@@ -32,6 +34,11 @@ class CatalogFeatureTests(TestCase):
 
 	def test_authenticated_user_can_submit_review_for_moderation(self):
 		self.client.login(username='reader', password='test-pass-123')
+		Loan.objects.create(
+			user=self.user,
+			book=self.book,
+			due_date=date.today() + timedelta(days=14),
+		)
 
 		response = self.client.post(reverse('review_create', args=[self.book.pk]), {
 			'puntuacion': 5,
@@ -41,6 +48,17 @@ class CatalogFeatureTests(TestCase):
 		self.assertRedirects(response, reverse('libro_detail', args=[self.book.pk]))
 		review = Review.objects.get(libro=self.book, usuario=self.user)
 		self.assertFalse(review.aprobada)
+
+	def test_user_without_purchase_or_loan_cannot_submit_review(self):
+		self.client.login(username='reader', password='test-pass-123')
+
+		response = self.client.post(reverse('review_create', args=[self.book.pk]), {
+			'puntuacion': 5,
+			'comentario': 'No debería publicarse.',
+		})
+
+		self.assertRedirects(response, reverse('libro_detail', args=[self.book.pk]))
+		self.assertFalse(Review.objects.filter(libro=self.book, usuario=self.user).exists())
 
 	def test_public_detail_hides_unapproved_reviews(self):
 		Review.objects.create(

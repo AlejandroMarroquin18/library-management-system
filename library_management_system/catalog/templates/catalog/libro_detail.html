@@ -59,6 +59,32 @@
         color: #64748b;
         font-weight: 600;
     }
+
+    .star-rating {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.1rem;
+    }
+
+    .star-rating input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .star-rating label {
+        color: #cbd5e1;
+        cursor: pointer;
+        font-size: 1.7rem;
+        line-height: 1;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+        color: #f59e0b;
+    }
 </style>
 {% endblock %}
 
@@ -236,15 +262,20 @@
                 <p class="text-muted small border-top pt-3">Todavía no hay reseñas publicadas.</p>
                 {% endfor %}
 
-                {% if user.is_authenticated %}
+                {% if puede_resenar %}
                 <div class="border-top pt-4 mt-2">
                     <h3 class="h6 fw-bold">Comparte tu opinión</h3>
                     <form method="post" action="{% url 'review_create' libro.id %}">
                         {% csrf_token %}
                         <div class="row g-3">
                             <div class="col-12 col-sm-4">
-                                {{ review_form.puntuacion.label_tag }}
-                                {{ review_form.puntuacion }}
+                                <span class="form-label d-block">Tu valoración</span>
+                                <div class="star-rating" role="radiogroup" aria-label="Selecciona una valoración de una a cinco estrellas">
+                                    {% for star in "12345" %}
+                                    <input type="radio" name="puntuacion" value="{{ forloop.counter }}" id="star-{{ forloop.counter }}" {% if forloop.counter == 5 %}checked{% endif %}>
+                                    <label for="star-{{ forloop.counter }}" title="{{ forloop.counter }} estrella{{ forloop.counter|pluralize }}">★</label>
+                                    {% endfor %}
+                                </div>
                             </div>
                             <div class="col-12">
                                 {{ review_form.comentario.label_tag }}
@@ -254,6 +285,8 @@
                         <button type="submit" class="btn btn-accent mt-3">Enviar reseña</button>
                     </form>
                 </div>
+                {% elif user.is_authenticated %}
+                <p class="small text-muted border-top pt-3 mt-3 mb-0">Compra o solicita este libro en préstamo para poder reseñarlo.</p>
                 {% else %}
                 <p class="small text-muted border-top pt-3 mt-3 mb-0"><a href="{% url 'login' %}">Inicia sesión</a> para publicar una reseña.</p>
                 {% endif %}
