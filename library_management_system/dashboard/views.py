@@ -11,8 +11,10 @@ from loans.models import Loan
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
+import logging
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 class DashboardHomeView(AdminRequiredMixin, TemplateView):
     """
@@ -334,6 +336,7 @@ class ReviewStatusUpdateView(AdminRequiredMixin, View):
         review.aprobada = request.POST.get('estado') == 'aprobar'
         review.save(update_fields=['aprobada', 'updated_at'])
         estado = 'aprobada' if review.aprobada else 'rechazada'
+        logger.info('review_moderated review_id=%s admin_id=%s status=%s', review.pk, request.user.pk, estado)
         messages.success(request, f'La reseña de "{review.libro.titulo}" fue {estado}.')
         return redirect('dashboard:review_list')
 

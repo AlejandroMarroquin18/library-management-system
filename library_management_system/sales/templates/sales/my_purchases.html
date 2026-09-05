@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Mis compras | Mi Librería{% endblock %}
 
@@ -28,12 +29,12 @@
                     {% for detalle in compra.detalles.all %}
                     <li class="d-flex justify-content-between border-top py-2 gap-2">
                         <span>{{ detalle.cantidad }}x {{ detalle.libro.titulo }}</span>
-                        <span class="fw-semibold">${{ detalle.subtotal }}</span>
+                        <span class="fw-semibold">COP ${{ detalle.subtotal|floatformat:0|intcomma }}</span>
                     </li>
                     {% endfor %}
                 </ul>
                 <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                    <strong>Total: ${{ compra.total }}</strong>
+                    <strong>Total: COP ${{ compra.total|floatformat:0|intcomma }}</strong>
                     <a href="{% url 'order_detail' compra.id %}" class="btn btn-soft btn-sm">Ver detalle</a>
                 </div>
             </div>

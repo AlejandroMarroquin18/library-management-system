@@ -4,9 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
 from django.db.models import Avg, F, Q
+import logging
 from users.decorators import admin_required
 from .forms import ReviewForm
 from .models import Libro, Categoria, Autor, Editorial, Review
+
+logger = logging.getLogger(__name__)
 
 
 class CatalogHomeView(ListView):
@@ -116,6 +119,7 @@ def review_create_view(request, book_id):
         detalles__libro=libro,
     ).exists() or Loan.objects.filter(user=request.user, book=libro).exists()
     if not can_review:
+        logger.warning('review_rejected user_id=%s book_id=%s reason=not_eligible', request.user.pk, libro.pk)
         messages.error(request, 'Solo puedes reseñar libros que hayas comprado o solicitado en préstamo.')
         return redirect('libro_detail', pk=libro.pk)
     form = ReviewForm(request.POST)
@@ -126,6 +130,7 @@ def review_create_view(request, book_id):
             defaults={**form.cleaned_data, 'aprobada': False},
         )
         message = 'Reseña enviada para moderación.' if created else 'Reseña actualizada y enviada para moderación.'
+        logger.info('review_submitted review_id=%s user_id=%s book_id=%s created=%s', review.pk, request.user.pk, libro.pk, created)
         messages.success(request, message)
     else:
         messages.error(request, 'Revisa la puntuación y el comentario de tu reseña.')
@@ -138,6 +143,7 @@ def review_delete_view(request, review_id):
     review = get_object_or_404(Review, pk=review_id, usuario=request.user)
     libro_id = review.libro_id
     review.delete()
+    logger.info('review_deleted review_id=%s user_id=%s book_id=%s', review_id, request.user.pk, libro_id)
     messages.success(request, 'Reseña eliminada.')
     return redirect('libro_detail', pk=libro_id)
 
@@ -151,6 +157,7 @@ def review_edit_view(request, review_id):
             review = form.save(commit=False)
             review.aprobada = False
             review.save()
+            logger.info('review_updated review_id=%s user_id=%s book_id=%s', review.pk, request.user.pk, review.libro_id)
             messages.success(request, 'Reseña actualizada y enviada para moderación.')
             return redirect('libro_detail', pk=review.libro_id)
     else:

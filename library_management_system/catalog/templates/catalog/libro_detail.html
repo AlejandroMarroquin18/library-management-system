@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}{{ libro.titulo }} | Mi Librería{% endblock %}
 
@@ -62,8 +63,8 @@
 
     .star-rating {
         display: inline-flex;
-        flex-direction: row;
-        justify-content: flex-start;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
         gap: 0.1rem;
     }
 
@@ -81,7 +82,8 @@
     }
 
     .star-rating label:hover,
-    .star-rating input:checked + label {
+    .star-rating input:checked + label,
+    .star-rating input:checked ~ label {
         color: #f59e0b;
     }
 </style>
@@ -156,12 +158,12 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Precio de venta</span>
-                    <span class="price-tag">${{ libro.precio_compra }}</span>
+                    <span class="price-tag">COP ${{ libro.precio_compra|floatformat:0|intcomma }}</span>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Precio de alquiler (14 días)</span>
-                    <span class="price-tag text-info-emphasis">${{ libro.precio_alquiler }}</span>
+                    <span class="price-tag text-info-emphasis">COP ${{ libro.precio_alquiler|floatformat:0|intcomma }}</span>
                 </div>
 
                 <hr class="my-3 opacity-10">
@@ -270,9 +272,9 @@
                             <div class="col-12 col-sm-4">
                                 <span class="form-label d-block">Tu valoración</span>
                                 <div class="star-rating" role="radiogroup" aria-label="Selecciona una valoración de una a cinco estrellas">
-                                    {% for star in "12345" %}
-                                    <input type="radio" name="puntuacion" value="{{ forloop.counter }}" id="star-{{ forloop.counter }}" {% if forloop.counter == 5 %}checked{% endif %}>
-                                    <label for="star-{{ forloop.counter }}" title="{{ forloop.counter }} estrella{{ forloop.counter|pluralize }}">★</label>
+                                    {% for star in "54321" %}
+                                    <input type="radio" name="puntuacion" value="{{ star }}" id="star-{{ star }}">
+                                    <label for="star-{{ star }}" title="{{ star }} estrella{{ star|pluralize }}">★</label>
                                     {% endfor %}
                                 </div>
                             </div>

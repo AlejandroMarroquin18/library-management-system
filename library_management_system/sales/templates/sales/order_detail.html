@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Resumen de compra #{{ compra.id }} | Mi Librería{% endblock %}
 
@@ -88,9 +89,9 @@
                             <span class="fw-medium text-dark">{{ detalle.libro.titulo }}</span>
                         </div>
                         <div class="text-end">
-                            <span class="fw-semibold text-dark">${{ detalle.subtotal }}</span>
+                            <span class="fw-semibold text-dark">COP ${{ detalle.subtotal|floatformat:0|intcomma }}</span>
                             <small class="d-block text-muted" style="font-size: 0.75rem;">
-                                ${{ detalle.precio_unitario }} c/u
+                                COP ${{ detalle.precio_unitario|floatformat:0|intcomma }} c/u
                             </small>
                         </div>
                     </div>
@@ -100,7 +101,7 @@
                 <!-- Total de la orden; el proyecto aún no integra una pasarela de pago. -->
                 <div class="d-flex justify-content-between align-items-center p-3 rounded-3 bg-success-subtle text-success-emphasis border border-success-subtle">
                     <span class="fw-bold">Total de la orden:</span>
-                    <span class="fs-4 fw-bold">${{ compra.total }}</span>
+                    <span class="fs-4 fw-bold">COP ${{ compra.total|floatformat:0|intcomma }}</span>
                 </div>
 
             </div>

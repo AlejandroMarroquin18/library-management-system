@@ -1,7 +1,10 @@
 from django.db import transaction
 from django.core.exceptions import ValidationError
+import logging
 from .models import Cart, CartItem, Compra, DetalleCompra
 from catalog.models import Libro
+
+logger = logging.getLogger(__name__)
 
 
 class CartService:
@@ -31,12 +34,14 @@ class CartService:
             cart_item.cantidad = cantidad
 
         cart_item.save()
+        logger.info('cart_item_added user_id=%s book_id=%s quantity=%s', user.pk, libro_id, cart_item.cantidad)
         return cart_item
 
     @staticmethod
     def remove_item(user, item_id):
         """Elimina un ítem específico del carrito."""
-        CartItem.objects.filter(cart__user=user, id=item_id).delete()
+        deleted, _ = CartItem.objects.filter(cart__user=user, id=item_id).delete()
+        logger.info('cart_item_removed user_id=%s item_id=%s deleted=%s', user.pk, item_id, deleted)
 
 
 class OrderService:
@@ -49,6 +54,7 @@ class OrderService:
         no se cree la compra (Rollback automático).
         """
         cart = Cart.objects.filter(user=user).prefetch_related('items__libro').first()
+        logger.info('checkout_started user_id=%s cart_id=%s', user.pk, cart.pk if cart else None)
 
         if not cart or not cart.items.exists():
             raise ValidationError("El carrito está vacío.")
@@ -96,5 +102,7 @@ class OrderService:
 
         # 4. Vaciar el carrito
         cart.items.all().delete()
+
+        logger.info('checkout_completed user_id=%s order_id=%s total=%s items=%s', user.pk, compra.pk, compra.total, len(detalles_a_crear))
 
         return compra

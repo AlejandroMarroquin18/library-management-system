@@ -1,4 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load humanize %}
 
 {% block title %}Histórico de compras{% endblock %}
 
@@ -38,7 +39,7 @@
                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">Cancelada</span>
                         {% endif %}
                     </td>
-                    <td class="fw-semibold text-dark">${{ compra.total }}</td>
+                    <td class="fw-semibold text-dark">COP ${{ compra.total|floatformat:0|intcomma }}</td>
                     <td class="pe-4 text-end">
                         <a href="{% url 'dashboard:compra_detail' compra.pk %}" class="btn btn-soft btn-sm">Ver detalle</a>
                     </td>

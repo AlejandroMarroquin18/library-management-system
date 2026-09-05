@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 
@@ -269,6 +270,8 @@ class Command(BaseCommand):
         created_books = 0
         updated_books = 0
         for data in BOOKS:
+            data['precio_compra'] = Decimal(data['precio_compra']) * 1000
+            data['precio_alquiler'] = Decimal(data['precio_alquiler']) * 1000
             book_data = {
                 **data,
                 'autor': authors[data.pop('autor')],

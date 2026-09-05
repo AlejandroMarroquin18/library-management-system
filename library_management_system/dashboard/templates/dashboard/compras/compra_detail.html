@@ -1,4 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load humanize %}
 
 {% block title %}Detalle de compra #{{ compra.id }}{% endblock %}
 
@@ -17,7 +18,7 @@
             <div class="col-12 col-md-6"><span class="text-muted">Usuario:</span> <span class="fw-semibold">{{ compra.usuario.username }}</span></div>
             <div class="col-12 col-md-6"><span class="text-muted">Fecha:</span> <span class="fw-semibold">{{ compra.fecha|date:"d/m/Y H:i" }}</span></div>
             <div class="col-12 col-md-6"><span class="text-muted">Estado:</span> <span class="badge text-bg-light border">{{ compra.get_estado_display }}</span></div>
-            <div class="col-12 col-md-6"><span class="text-muted">Total General:</span> <span class="fw-bold text-success">${{ compra.total }}</span></div>
+            <div class="col-12 col-md-6"><span class="text-muted">Total General:</span> <span class="fw-bold text-success">COP ${{ compra.total|floatformat:0|intcomma }}</span></div>
         </div>
     </div>
 </div>
@@ -38,8 +39,8 @@
                 <tr>
                     <td class="ps-4 fw-semibold text-dark">{{ item.libro.titulo }}</td>
                     <td>{{ item.cantidad }}</td>
-                    <td>${{ item.precio_unitario }}</td>
-                    <td class="pe-4 text-end fw-semibold text-dark">${{ item.subtotal }}</td>
+                    <td>COP ${{ item.precio_unitario|floatformat:0|intcomma }}</td>
+                    <td class="pe-4 text-end fw-semibold text-dark">COP ${{ item.subtotal|floatformat:0|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

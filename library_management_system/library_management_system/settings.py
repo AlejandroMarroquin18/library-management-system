@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -173,6 +174,30 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'sales': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'loans': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'catalog': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'dashboard': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'users': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+    },
+}
 
 # Habilita compresión y caché de estáticos
 STORAGES["staticfiles"] = {
